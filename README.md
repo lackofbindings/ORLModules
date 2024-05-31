@@ -27,6 +27,8 @@ These will be installed automatically by the VCC when you add this package to yo
 
 1. If you do not already, ensure you have the [ORL Shader Suite](https://shaders.orels.sh/#quick-start) repo added to your VCC.
 2. Go to the [VPM Listing](https://lackofbindings.github.io/ORLModules/) for this repo and hit "Add to VCC".
+   
+If the "Add to VCC" button does not work you can manually enter the following url into the Packages settings of the VCC `https://lackofbindings.github.io/ORLModules/index.json` 
 
 If you do not have access to the VCC, there are also unitypackage versions avalible in the [Releases](https://github.com/lackofbindings/ORLModules/releases/latest).
 
