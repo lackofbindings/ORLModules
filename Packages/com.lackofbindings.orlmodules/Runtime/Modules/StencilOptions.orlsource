@@ -1,7 +1,7 @@
 %Properties()
 {
     UI_StencilSettingsHeader("# Stencil Settings", Float) = 0
-    [IntRange]_StencilRef("Stencil Test", Range(1,255)) = 69
+    [IntRange]_StencilRef("Stencil Test", Range(1,255)) = 0
     [Enum(UnityEngine.Rendering.CompareFunction)]_StencilCompare("Compare", Float) = 8
     [Enum(UnityEngine.Rendering.StencilOp)]_StencilPass("Pass", Float) = 0
     [Enum(UnityEngine.Rendering.StencilOp)]_StencilFail("Fail", Float) = 0
