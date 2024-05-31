@@ -32,4 +32,24 @@ If the "Add to VCC" button does not work you can manually enter the following ur
 
 If you do not have access to the VCC, there are also unitypackage versions avalible in the [Releases](https://github.com/lackofbindings/ORLModules/releases/latest).
 
+## Usage
+ 
+#### As a shader
+
+Ready-to-use variants of ORL Standard can be found when making a new material:
+- `orels1/Standard Stencil`
+- `orels1/Standard Audiolink Pathing`
+
+#### As a module
+
+The modules can also be included in any `.orlshader` or `.orlsource` by listing the module in your Includes block:
+```
+%Includes()
+{
+    "@/Shaders/ORL Standard",
+    "/Packages/com.lackofbindings.orlmodules/Runtime/Modules/AudiolinkPathing",
+    "self"
+}
+```
+See the official [ORL Shader Generator documentation](https://shaders.orels.sh/docs/generator/development-basics) for more info.
 
