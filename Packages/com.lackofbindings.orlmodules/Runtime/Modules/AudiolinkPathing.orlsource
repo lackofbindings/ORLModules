@@ -1,0 +1,278 @@
+// Original audiolink code by s-ilent (https://gitlab.com/s-ilent/SCSS)
+// Modified by lackofbindings for use with ORELs.
+// Original license is as follows:
+
+// MIT License
+
+// Copyright (c) 2018 s-ilent
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+
+%Properties()
+{
+    UI_AlPathingHeader("# Audiolink Pathing", Float) = 0
+    _AudiolinkIntensity("Audiolink Emission Intensity", Float) = 1.0
+    _AudiolinkMaskMap("Audiolink Mask Map", 2D) = "white" {}
+    [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)]_AudiolinkMaskMapUVSec("Audiolink Mask UV Source", Float) = 0
+    _AudiolinkSweepMap("Audiolink Sweep Map", 2D) = "gray" {}
+    [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)]_AudiolinkSweepMapUVSec("Audiolink Sweep UV Source", Float) = 0
+    [Toggle()]_AudiolinkSweepMapReverse("Reverse Sweep Direction", Float ) = 0.0
+
+    _alColorR("Red Channel Tint", Color)   = (1, 0.333, 0, 0)
+    _alColorG("Green Channel Tint", Color) = (0, 1, 0.333, 0)
+    _alColorB("Blue Channel Tint", Color)  = (0.33, 0, 1, 0)
+    _alColorA("Alpha Channel Tint", Color) = (0.333, 0.333, 0.333, 0)
+    [IntRange]_alBandR("Red Channel Band", Range(0, 4)) = 1
+    [IntRange]_alBandG("Green Channel Band", Range(0, 4)) = 2
+    [IntRange]_alBandB("Blue Channel Band", Range(0, 4)) = 3
+    [IntRange]_alBandA("Alpha Channel Band", Range(0, 4)) = 0
+    [Enum(Pulse, 0, VU, 1)]_alModeR("AudioLink Mode", Float) = 0
+    [Enum(Pulse, 0, VU, 1)]_alModeG("AudioLink Mode", Float) = 0
+    [Enum(Pulse, 0, VU, 1)]_alModeB("AudioLink Mode", Float) = 0
+    [Enum(Pulse, 0, VU, 1)]_alModeA("AudioLink Mode", Float) = 0
+    [Gamma]_alTimeRangeR("Audio Link Time Range", Range(0, 1)) = 1.0
+    [Gamma]_alTimeRangeG("Audio Link Time Range", Range(0, 1)) = 1.0
+    [Gamma]_alTimeRangeB("Audio Link Time Range", Range(0, 1)) = 1.0
+    [Gamma]_alTimeRangeA("Audio Link Time Range", Range(0, 1)) = 1.0
+    [Enum(Disable, 0, Enable, 1, Force on, 2)]_alUseFallback("Enable fallback", Float) = 1
+    _alFallbackBPM("Fallback BPM", Float) = 160
+}
+
+%Includes(){
+    "@/Modules/AudioLink",
+    "self"
+}
+
+%ShaderFeatures()
+{
+    #pragma shader_feature_local _ _AUDIOLINK
+}
+
+%ShaderDefines()
+{
+    #ifdef SHADER_TARGET_SURFACE_ANALYSIS
+    #define AUDIOLINK_COMPILE_COMPATIBILITY
+    #endif
+
+    #define EXTRA_V2F_0
+    #define EXTRA_V2F_1
+}
+
+%Variables()
+{
+    uniform float _alModeR;
+    uniform float _alModeG;
+    uniform float _alModeB;
+    uniform float _alModeA;
+
+    uniform float _alBandR;
+    uniform float _alBandG;
+    uniform float _alBandB;
+    uniform float _alBandA;
+
+    uniform half4 _alColorR;
+    uniform half4 _alColorG;
+    uniform half4 _alColorB;
+    uniform half4 _alColorA;
+
+    uniform float _alTimeRangeR;
+    uniform float _alTimeRangeG;
+    uniform float _alTimeRangeB;
+    uniform float _alTimeRangeA;
+
+    uniform float _alUseFallback;
+    uniform float _alFallbackBPM;
+
+    uniform half4 _AudiolinkMaskMap_ST;
+    uniform half4 _AudiolinkSweepMap_ST;
+    uniform float _AudiolinkIntensity;
+    uniform float _AudiolinkMaskMapUVSec;
+    uniform float _AudiolinkSweepMapUVSec;
+
+    uniform float _AudiolinkSweepMapReverse;
+}
+
+%Textures()
+{
+    TEXTURE2D(_AudiolinkSweepMap);
+    TEXTURE2D(_AudiolinkMaskMap);
+    SAMPLER(sampler_AudiolinkMaskMap);
+    SAMPLER(sampler_AudiolinkSweepMap);
+
+    #ifdef AUDIOLINK_COMPILE_COMPATIBILITY
+    // SAMPLER(_AudioTexture);
+    #else
+    // TEXTURE2D(_AudioTexture);
+    SamplerState sampler_AudioGraph_Linear_Clamp;
+    #endif
+}
+
+%Fragment("ALPathingFrag")
+{
+
+    float al_lerpstep( float a, float b, float t)
+    {
+        return saturate( ( t - a ) / ( b - a ) );
+    }
+
+    float al_expImpulse( float x, float k )
+    {
+        const float h = k*x;
+        return h*exp(1.0-h);
+    }
+
+    float2 audioLinkModifyTexcoord(float4 texelSize , float2 p)
+    {
+        p = p*texelSize.zw;
+        // Instead of a hard clamp, sharpen to a pixel width for glancing angles
+        float2 c = max(0.0, abs(fwidth(p)));
+        c.x = 1;
+        p = p + abs(c);
+        p = floor(p) + saturate(frac(p) / c);
+        p = (p - 0.5)*texelSize.xy;
+        return p;
+    }
+
+    // Samples the AudioLink texture. 
+    float sampleAudioTexture(float band, float delay, float range)
+    {
+        // Initialisation. 
+        float2 audioLinkRes = 0;
+        _AudioTexture.GetDimensions(audioLinkRes.x, audioLinkRes.y);
+
+        if (audioLinkRes.x >= 128.0 && _alUseFallback != 2)
+        {
+            float2 params = float2(delay, band / 4.0);
+            // We only want the bottom 4 bands.
+            // When reading the texture, we want the bands to be thickly seperated.
+            float2 alUV = params*float2(range,0.0625);
+            alUV = audioLinkModifyTexcoord(float4(1.0/audioLinkRes, audioLinkRes), alUV);
+            // sample the texture
+            #ifdef AUDIOLINK_COMPILE_COMPATIBILITY
+            return tex2Dlod(_AudioTexture, float4(alUV, 0, 0));
+            #else
+            return _AudioTexture.SampleLevel(sampler_AudioGraph_Linear_Clamp, alUV, 0);
+            #endif
+        } else {
+            if (_alUseFallback != 0) 
+            {
+                if (_alFallbackBPM == 0)
+                {
+                    return 1;
+                }
+            // If not available, fake one.
+            float beat = _alFallbackBPM / 60;
+            float rowTiming = (4-band)/4.0;
+            delay *= range;
+            beat = (delay-_Time.y)*rowTiming*beat;
+            beat = frac(-beat);
+            beat = al_expImpulse(beat, 8.0);
+            float s; float c;
+            sincos(beat, s, c);
+            float final = saturate(s+(0.5+c));
+            // 
+            return final*beat;
+            }
+        }
+
+        return 0;
+    }
+
+    float audioLinkRenderBar(float grad, float pulse)
+    {
+        float2 deriv = abs(fwidth(grad));
+        float step = deriv*0.5;
+        return al_lerpstep(pulse, pulse + step, grad);
+    }
+
+    float audioLinkGetLayer(float weight, const float range, const float band, const float mode)
+    {
+        // weightOrReverse is either 1-weight or weight depending on the value of _AudiolinkSweepMapReverse
+        float weightOrReverse = ((1-weight) * (1-_AudiolinkSweepMapReverse)) + (weight * _AudiolinkSweepMapReverse);
+        if (mode == 0) return weight * pow(sampleAudioTexture(band-1, weightOrReverse, range ), 2.0) * 2.0;
+        if (mode == 1) return audioLinkRenderBar(weight, 1-sampleAudioTexture(band-1, weightOrReverse, range ));
+        return 0;
+    }
+
+    half4 EmissiveAudioLink(float2 maskUV, float2 sweepUV)
+    {
+        float4 col = 0;
+        // Load mask texture
+        half4 mask = UNITY_SAMPLE_TEX2D_SAMPLER(_AudiolinkMaskMap, _AudiolinkMaskMap, maskUV);
+        // Load weights texture
+        half4 weights = UNITY_SAMPLE_TEX2D_SAMPLER(_AudiolinkSweepMap, _AudiolinkSweepMap, sweepUV);
+        // Apply a small epsilon to the weights to avoid artifacts.
+        const float epsilon = (1.0/255.0);
+        weights = saturate(weights-epsilon);
+        // sample the texture
+        col.rgb += (_alBandR >= 1) ? audioLinkGetLayer(weights.r, _alTimeRangeR, _alBandR, _alModeR) * _alColorR : 0;
+        col.rgb += (_alBandG >= 1) ? audioLinkGetLayer(weights.g, _alTimeRangeG, _alBandG, _alModeG) * _alColorG : 0;
+        col.rgb += (_alBandB >= 1) ? audioLinkGetLayer(weights.b, _alTimeRangeB, _alBandB, _alModeB) * _alColorB : 0;
+        col.rgb += (_alBandA >= 1) ? audioLinkGetLayer(weights.a, _alTimeRangeA, _alBandA, _alModeA) * _alColorA : 0;
+        col.a = 1.0;
+        col.rgb *= mask * _AudiolinkIntensity;
+        return col;
+    }
+
+    float4 EmissiveAudioLinkTexCoords(float4 uvPack0, float4 uvPack1)
+    {
+        float2 uv0 = uvPack0.xy;
+        float2 uv1 = uvPack0.zw;
+        float2 uv2 = uvPack1.xy;
+        float2 uv3 = uvPack1.zw;
+
+        float4 texcoord;
+        float2 maskTexcoord = 
+            float2(float4(uv0.x, uv1.x, uv2.x, uv3.x)[_AudiolinkMaskMapUVSec], 
+                float4(uv0.y, uv1.y, uv2.y, uv3.y)[_AudiolinkMaskMapUVSec]);
+        float2 sweepTexcoord = 
+            float2(float4(uv0.x, uv1.x, uv2.x, uv3.x)[_AudiolinkSweepMapUVSec], 
+                float4(uv0.y, uv1.y, uv2.y, uv3.y)[_AudiolinkSweepMapUVSec]);
+
+        maskTexcoord.xy = TRANSFORM_TEX(maskTexcoord, _AudiolinkMaskMap);
+        // Pixel sample mode not implemented yet.
+        sweepTexcoord.xy = TRANSFORM_TEX(sweepTexcoord, _AudiolinkSweepMap);
+        // Pixel sampling probably won't work with sweeps...
+
+        texcoord = float4(maskTexcoord, sweepTexcoord); // Default we won't need
+        return texcoord;
+    }
+
+    void ALPathingFrag(MeshData d, inout SurfaceData o)
+    {   
+        float4 audiolinkUV = EmissiveAudioLinkTexCoords(d.extraV2F0, d.extraV2F1);
+        o.Emission += EmissiveAudioLink(audiolinkUV.xy, audiolinkUV.zw);
+    }
+}
+
+%Vertex("ALPathingVert")
+{
+    void ALPathingVert(inout VertexData v, inout FragmentData o) {    
+        // UNITY_SETUP_INSTANCE_ID(v);
+        // UNITY_INITIALIZE_OUTPUT(VertexOutput, o);
+        // UNITY_TRANSFER_INSTANCE_ID(v, o);
+        // UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+    
+        float4 uvPack0 = float4(v.uv0.xy, v.uv1.xy);
+        float4 uvPack1 = float4(v.uv2.xy, v.uv3.xy);
+        o.extraV2F0 = uvPack0;
+        o.extraV2F1 = uvPack1;
+    }
+}

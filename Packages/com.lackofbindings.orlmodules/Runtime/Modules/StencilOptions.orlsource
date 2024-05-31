@@ -1,0 +1,23 @@
+%Properties()
+{
+    UI_StencilSettingsHeader("# Stencil Settings", Float) = 0
+    [IntRange]_StencilRef("Stencil Test", Range(1,255)) = 69
+    [Enum(UnityEngine.Rendering.CompareFunction)]_StencilCompare("Compare", Float) = 8
+    [Enum(UnityEngine.Rendering.StencilOp)]_StencilPass("Pass", Float) = 0
+    [Enum(UnityEngine.Rendering.StencilOp)]_StencilFail("Fail", Float) = 0
+    [Enum(UnityEngine.Rendering.StencilOp)]_StencilZFail("ZFail", Float) = 0
+}
+
+%ShaderModifiers()
+{
+    Stencil
+    {
+        Ref [_StencilRef]
+        Comp [_StencilCompare]
+        Pass [_StencilPass]
+        Fail [_StencilFail]
+        ZFail [_StencilZFail]
+    }
+}
+
+
