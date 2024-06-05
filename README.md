@@ -14,7 +14,7 @@ This module ports the audiolink code from [Silent's Cell Shading Shader](https:/
 
 #### 2nd Emission
 
-This module adds a secondary emission texture slot. It provides its own tint color, UV channel, and RGB channel options. It shares the same tiling, offsets, and sampler, and keyword with the base emission slot. 
+This module adds a secondary emission texture slot. It provides its own tint color, UV channel, and RGB channel options. It shares the same tiling, offsets, sampler, and keyword with the base emission slot. 
 
 ## How to Install
 
