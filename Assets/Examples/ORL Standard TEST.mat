@@ -7,10 +7,10 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ORL Standard AudiolinkPathing
-  m_Shader: {fileID: -8512187303908658807, guid: dbf50430a3f9cfb4f885ce64cd44f239,
+  m_Name: ORL Standard TEST
+  m_Shader: {fileID: -8512187303908658807, guid: bb1fc5fc14b648debb2f566068d58f43,
     type: 3}
-  m_ShaderKeywords: BAKERY_NONE BAKERY_SHNONLINEAR DETAILS_MODE_PACKED GSAA
+  m_ShaderKeywords: BAKERY_NONE BAKERY_SHNONLINEAR DETAILS_MODE_PACKED GSAA _EMISSION
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -20,14 +20,6 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _AudiolinkMaskMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _AudiolinkSweepMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -57,7 +49,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: a0163da49778a844b91f89e19fd442c9, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Height:
@@ -100,7 +92,6 @@ Material:
     - BAKERY: 0
     - DETAILS_MODE: 0
     - UI_AdvancedSettingsHeader: 1
-    - UI_AlPathingHeader: 1
     - UI_BakeryHeader: 0
     - UI_DetailAlbedoNote: 0
     - UI_DetailSmoothNote: 0
@@ -124,10 +115,6 @@ Material:
     - UI_VRCHideMainViewHeader: 0
     - _AOChannel: 1
     - _AlbedoChannel: 0
-    - _AudiolinkIntensity: 1
-    - _AudiolinkMaskMapUVSec: 0
-    - _AudiolinkSweepMapReverse: 0
-    - _AudiolinkSweepMapUVSec: 0
     - _BakedSpecular: 0
     - _BakeryEnabled: 0
     - _BakerySHNonLinear: 1
@@ -150,7 +137,7 @@ Material:
     - _DetailsOverlay: 0
     - _DstBlend: 0
     - _EmissionChannel: 0
-    - _EmissionEnabled: 0
+    - _EmissionEnabled: 1
     - _EnableGSAA: 1
     - _EnableParallax: 0
     - _FlipBumpY: 0
@@ -192,26 +179,8 @@ Material:
     - _VRCHideInVRMirror: 0
     - _ZTest: 4
     - _ZWrite: 1
-    - _alBandA: 0
-    - _alBandB: 3
-    - _alBandG: 2
-    - _alBandR: 1
-    - _alFallbackBPM: 10
-    - _alModeA: 0
-    - _alModeB: 0
-    - _alModeG: 0
-    - _alModeR: 0
-    - _alTimeRangeA: 1
-    - _alTimeRangeB: 1
-    - _alTimeRangeG: 1
-    - _alTimeRangeR: 1
-    - _alUseFallback: 1
     m_Colors:
-    - _Color: {r: 0, g: 0, b: 0, a: 1}
-    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _Color: {r: 0.1509434, g: 0.1509434, b: 0.1509434, a: 1}
+    - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _MetallicRemap: {r: 0, g: 1, b: 0, a: 1}
     - _SmoothnessRemap: {r: 0, g: 1, b: 0, a: 1}
-    - _alColorA: {r: 0.33299997, g: 0.33299997, b: 0.33299997, a: 0}
-    - _alColorB: {r: 0.32999998, g: 0, b: 1, a: 0}
-    - _alColorG: {r: 0, g: 1, b: 0.33299997, a: 0}
-    - _alColorR: {r: 1, g: 0.33299997, b: 0, a: 0}

@@ -12,6 +12,10 @@ This Module provides the standard stencil masking options (stencil mask value, p
 
 This module ports the audiolink code from [Silent's Cell Shading Shader](https://gitlab.com/s-ilent/SCSS) to ORL Standard. This provides Furality-style audiolink with separate channel (AL band) and sweep (direction) maps. The only new addition is a toggle to flip the direction of the sweep, since some shaders (Poiyomi, Furality, SCSS) interpret the sweep map differently.
 
+#### 2nd Emission
+
+This module adds a secondary emission texture slot. It provides its own tint color, UV channel, and RGB channel options. It shares the same tiling, offsets, and sampler, and keyword with the base emission slot. 
+
 ## How to Install
 
 ### Dependencies
@@ -39,6 +43,7 @@ If you do not have access to the VCC, there are also unitypackage versions avali
 Ready-to-use variants of ORL Standard can be found when making a new material:
 - `orels1/Standard Stencil`
 - `orels1/Standard Audiolink Pathing`
+- `orels1/Standard 2nd Emission`
 
 #### As a module
 

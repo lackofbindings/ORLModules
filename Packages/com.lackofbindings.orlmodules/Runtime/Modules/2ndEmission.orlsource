@@ -1,0 +1,59 @@
+// Original emission code by orels1, modified for use as 2nd emission.
+// (https://github.com/orels1/orels-Unity-Shaders/blob/main/Packages/sh.orels.shaders/Runtime/Shaders/ORL%20Standard.orlshader)
+
+%Properties()
+{
+    UI_Emission2Header("# 2nd Emission", Int) = 1
+    UI_Emission2Note("> Must enable 1st Emission in order to use 2nd Emission %ShowIf(!_EMISSION)", Int) = 0
+    // [Toggle(_EMISSION2)] _Emission2Enabled("2nd Emission", Int) =  0
+    _Emission2Map("Emission Map > %ShowIf(_EMISSION)", 2D) =  "white" { }
+    [HDR]_Emission2Color("Emission Color %ShowIf(_EMISSION)", Color) =  (0, 0, 0, 1)
+    [Enum(RGB, 0, R, 1, G, 2, B, 3)][_Emission2Map] _Emission2Channel("Emission Channel %ShowIf(_Emission2Map)", Int) =  0
+    [Enum(UV1, 0, UV2, 1, UV3, 2, UV4, 3)]_Emission2UVChannel("UV Set %ShowIf(_Emission2Map)", Int) = 0
+}
+
+// %ShaderFeatures()
+// {
+//     #pragma shader_feature_local _EMISSION2
+// }
+
+%Variables()
+{
+    half4 _Emission2Color;
+    int _Emission2Channel;
+    int _Emission2UVChannel;
+}
+
+%Textures()
+{
+    TEXTURE2D(_Emission2Map);
+    // SAMPLER(sampler_Emission2Map);
+}
+
+%Fragment("Emission2Frag")
+{
+    void Emission2Frag(MeshData d, inout SurfaceData o) {
+        // UV channel selection
+        half2 uv;
+        switch(_Emission2UVChannel)
+        {
+            case 1: uv = d.uv1.xy; break;
+            case 2: uv = d.uv2.xy; break;
+            case 3: uv = d.uv3.xy; break;
+            default: uv = d.uv0.xy; break;
+        }
+        uv *= _MainTex_ST.xy + _MainTex_ST.zw;
+        
+        // RGB channel selection
+        half3 emission2 = SAMPLE_TEXTURE2D(_Emission2Map, sampler_EmissionMap, uv).rgb;
+        if (_Emission2Channel > 0)
+        {
+            emission2.rgb = emission2[_Emission2Channel - 1].xxx;
+        }
+
+        // Add emission to base emission
+        #if defined(_EMISSION)
+            o.Emission += emission2 * _Emission2Color;
+        #endif
+    }
+}
