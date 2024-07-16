@@ -24,33 +24,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 %Properties()
 {
-    UI_AlPathingHeader("# Audiolink Pathing", Float) = 0
-    _AudiolinkIntensity("Audiolink Emission Intensity", Float) = 1.0
-    _AudiolinkMaskMap("Audiolink Mask Map", 2D) = "white" {}
-    [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)]_AudiolinkMaskMapUVSec("Audiolink Mask UV Source", Float) = 0
-    _AudiolinkSweepMap("Audiolink Sweep Map", 2D) = "gray" {}
-    [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)]_AudiolinkSweepMapUVSec("Audiolink Sweep UV Source", Float) = 0
+    UI_AlPathingHeader("# AudioLink Pathing", Float) = 0
+    [KeywordEnum(SCSS, Furality, Furality Packed)]_ALPathingMode("AudioLink Pathing Mode", float) = 0
+    _AudiolinkIntensity("AudioLink Emission Intensity", Float) = 1.0
+    _AudiolinkMaskMap("AudioLink Mask Map", 2D) = "white" {}
+    UI_ALMaskMapNoteSCSS("> RGB: Color, A: Mask %ShowIf(_ALPATHINGMODE_SCSS)", Int) = 0
+    UI_ALMaskMapNoteFurality("> RGBA: AudioLink Channels 1-4 %ShowIf(_ALPATHINGMODE_FURALITY)", Int) = 0
+    UI_ALMaskMapNoteFuralityP("> RGB: AudioLink Channels 1-3, A: Sweep (Direction) %ShowIf(_ALPATHINGMODE_FURALITY_PACKED)", Int) = 0
+    [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)]_AudiolinkMaskMapUVSec("AudioLink Mask UV Source", Float) = 0
+    _AudiolinkSweepMap("AudioLink Sweep Map %ShowIf(!_ALPATHINGMODE_FURALITY_PACKED)", 2D) = "gray" {}
+    UI_ALSweepMapNoteSCSS("> RGBA: AudioLink Channels 1-4 * Sweep %ShowIf(_ALPATHINGMODE_SCSS)", Int) = 0
+    UI_ALSweepMapNoteFurality("> R: Sweep (Direction) %ShowIf(_ALPATHINGMODE_FURALITY)", Int) = 0
+    [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)]_AudiolinkSweepMapUVSec("AudioLink Sweep UV Source %ShowIf(!_ALPATHINGMODE_FURALITY_PACKED)", Float) = 0
     [Toggle()]_AudiolinkSweepMapReverse("Reverse Sweep Direction", Float ) = 0.0
+    UI_AudiolinkSweepMapReverseNoteSCSS("> Textures made for Poiyomi will sweep in the wrong direction unless reverse is enabled %ShowIf(_ALPATHINGMODE_SCSS && !_AudiolinkSweepMapReverse)", Int) = 0
 
-    _alColorR("Red Channel Tint", Color)   = (1, 0.333, 0, 0)
-    _alColorG("Green Channel Tint", Color) = (0, 1, 0.333, 0)
-    _alColorB("Blue Channel Tint", Color)  = (0.33, 0, 1, 0)
-    _alColorA("Alpha Channel Tint", Color) = (0.333, 0.333, 0.333, 0)
-    [IntRange]_alBandR("Red Channel Band", Range(0, 4)) = 1
-    [IntRange]_alBandG("Green Channel Band", Range(0, 4)) = 2
-    [IntRange]_alBandB("Blue Channel Band", Range(0, 4)) = 3
-    [IntRange]_alBandA("Alpha Channel Band", Range(0, 4)) = 0
-    [Enum(Pulse, 0, VU, 1)]_alModeR("AudioLink Mode", Float) = 0
-    [Enum(Pulse, 0, VU, 1)]_alModeG("AudioLink Mode", Float) = 0
-    [Enum(Pulse, 0, VU, 1)]_alModeB("AudioLink Mode", Float) = 0
-    [Enum(Pulse, 0, VU, 1)]_alModeA("AudioLink Mode", Float) = 0
-    [Gamma]_alTimeRangeR("Audio Link Time Range", Range(0, 1)) = 1.0
-    [Gamma]_alTimeRangeG("Audio Link Time Range", Range(0, 1)) = 1.0
-    [Gamma]_alTimeRangeB("Audio Link Time Range", Range(0, 1)) = 1.0
-    [Gamma]_alTimeRangeA("Audio Link Time Range", Range(0, 1)) = 1.0
+    _alColorR("R Channel Tint", Color)   = (1, 0.333, 0, 0)
+    _alColorG("G Channel Tint", Color) = (0, 1, 0.333, 0)
+    _alColorB("B Channel Tint", Color)  = (0.33, 0, 1, 0)
+    _alColorA("A Channel Tint %ShowIf(!_ALPATHINGMODE_FURALITY_PACKED)", Color) = (0.333, 0.333, 0.333, 0)
+    [Enum(Disabled, 0, Bass, 1, Low Mid, 2, High Mid, 3, Treble, 4)]_alBandR("R Channel Band", Int) = 1
+    [Enum(Disabled, 0, Bass, 1, Low Mid, 2, High Mid, 3, Treble, 4)]_alBandG("G Channel Band", Int) = 2
+    [Enum(Disabled, 0, Bass, 1, Low Mid, 2, High Mid, 3, Treble, 4)]_alBandB("B Channel Band", Int) = 3
+    [Enum(Disabled, 0, Bass, 1, Low Mid, 2, High Mid, 3, Treble, 4)]_alBandA("A Channel Band %ShowIf(!_ALPATHINGMODE_FURALITY_PACKED)", Int) = 4
+    [Enum(Pulse, 0, VU, 1)]_alModeR("R AudioLink Mode", Float) = 0
+    [Enum(Pulse, 0, VU, 1)]_alModeG("G AudioLink Mode", Float) = 0
+    [Enum(Pulse, 0, VU, 1)]_alModeB("B AudioLink Mode", Float) = 0
+    [Enum(Pulse, 0, VU, 1)]_alModeA("A AudioLink Mode %ShowIf(!_ALPATHINGMODE_FURALITY_PACKED)", Float) = 0
+    [Gamma]_alTimeRangeR("R AudioLink Time Range", Range(0, 1)) = 1.0
+    [Gamma]_alTimeRangeG("G AudioLink Time Range", Range(0, 1)) = 1.0
+    [Gamma]_alTimeRangeB("B AudioLink Time Range", Range(0, 1)) = 1.0
+    [Gamma]_alTimeRangeA("A AudioLink Time Range %ShowIf(!_ALPATHINGMODE_FURALITY_PACKED)", Range(0, 1)) = 1.0
     [Enum(Disable, 0, Enable, 1, Force on, 2)]_alUseFallback("Enable fallback", Float) = 1
     _alFallbackBPM("Fallback BPM", Float) = 160
 }
@@ -62,7 +68,7 @@
 
 %ShaderFeatures()
 {
-    #pragma shader_feature_local _ _AUDIOLINK
+    #pragma shader_feature_local _ _AUDIOLINK _ALPATHINGMODE_SCSS _ALPATHINGMODE_FURALITY _ALPATHINGMODE_FURALITY_PACKED
 }
 
 %ShaderDefines()
@@ -153,7 +159,7 @@
     // Samples the AudioLink texture. 
     float sampleAudioTexture(float band, float delay, float range)
     {
-        // Initialisation. 
+        // Initialization. 
         float2 audioLinkRes = 0;
         _AudioTexture.GetDimensions(audioLinkRes.x, audioLinkRes.y);
 
@@ -161,7 +167,7 @@
         {
             float2 params = float2(delay, band / 4.0);
             // We only want the bottom 4 bands.
-            // When reading the texture, we want the bands to be thickly seperated.
+            // When reading the texture, we want the bands to be thickly separated.
             float2 alUV = params*float2(range,0.0625);
             alUV = audioLinkModifyTexcoord(float4(1.0/audioLinkRes, audioLinkRes), alUV);
             // sample the texture
@@ -218,16 +224,39 @@
         half4 mask = UNITY_SAMPLE_TEX2D_SAMPLER(_AudiolinkMaskMap, _AudiolinkMaskMap, maskUV);
         // Load weights texture
         half4 weights = UNITY_SAMPLE_TEX2D_SAMPLER(_AudiolinkSweepMap, _AudiolinkSweepMap, sweepUV);
+        
+        // Convert furality-style masks to scss/poiyomi-style.
+        // mask: {RGBA: AL Channel 1-4}, weights: {R: Direction} 
+        #ifdef _ALPATHINGMODE_FURALITY
+        weights = mask * LinearToGammaSpaceExact(weights.r);
+        
+        mask.rgb = saturate(mask.r + mask.g + mask.b + ((_alBandA >= 1) ? mask.a : 0) );
+        mask.a = mask.rgb;
+        #endif
+
+        // Convert packed-furality-style masks to scss/poiyomi-style.
+        // mask: {RGB: AL Channel 1-3, A: Direction}, weights: {Unused} 
+        #ifdef _ALPATHINGMODE_FURALITY_PACKED
+        weights.rgb = mask.rgb * mask.a;
+        weights.a = 0.5;
+        
+        mask.rgb = saturate(mask.r + mask.g + mask.b);
+        mask.a = 0;
+        #endif
+        
         // Apply a small epsilon to the weights to avoid artifacts.
         const float epsilon = (1.0/255.0);
         weights = saturate(weights-epsilon);
-        // sample the texture
+
+        // Sample the texture (SCSS/Poiyomi-style).
+        // mask: {RGB: Color Tint, A: Mask}, weights: {RGBA: AL Channel 1-4 * Direction}
         col.rgb += (_alBandR >= 1) ? audioLinkGetLayer(weights.r, _alTimeRangeR, _alBandR, _alModeR) * _alColorR : 0;
         col.rgb += (_alBandG >= 1) ? audioLinkGetLayer(weights.g, _alTimeRangeG, _alBandG, _alModeG) * _alColorG : 0;
         col.rgb += (_alBandB >= 1) ? audioLinkGetLayer(weights.b, _alTimeRangeB, _alBandB, _alModeB) * _alColorB : 0;
         col.rgb += (_alBandA >= 1) ? audioLinkGetLayer(weights.a, _alTimeRangeA, _alBandA, _alModeA) * _alColorA : 0;
         col.a = 1.0;
         col.rgb *= mask * _AudiolinkIntensity;
+
         return col;
     }
 

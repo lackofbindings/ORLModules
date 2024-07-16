@@ -10,7 +10,14 @@ This Module provides the standard stencil masking options (stencil mask value, p
 
 #### AudioLink Pathing
 
-This module ports the audiolink code from [Silent's Cell Shading Shader](https://gitlab.com/s-ilent/SCSS) to ORL Standard. This provides Furality-style audiolink with separate channel (AL band) and sweep (direction) maps. The only new addition is a toggle to flip the direction of the sweep, since some shaders (Poiyomi, Furality, SCSS) interpret the sweep map differently.
+This module ports the audiolink code from [Silent's Cell Shading Shader](https://gitlab.com/s-ilent/SCSS) to ORL Standard. This provides Furality/Poiyomi-Pathing style audiolink. 
+
+**It supports three different styles of pathing maps:**
+1. SCSS/Poiyomi-style audiolink pathing with a Color/Mask map and a Channel/Direction map.
+2. Furality-style with a separate channel (AL band) map and sweep (direction) map.
+3. A simplified Furality-style mode that loses the 4th AL band in favor of packing in the sweep (direction) map into the alpha channel, thus only requiring one texture.
+ 
+This module also features a toggle to flip the direction of the sweep, since some shaders (Poiyomi, Furality, SCSS) interpret the sweep map differently.
 
 #### 2nd Emission
 
