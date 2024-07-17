@@ -10,10 +10,10 @@ This Module provides the standard stencil masking options (stencil mask value, p
 
 #### AudioLink Pathing
 
-This module ports the audiolink code from [Silent's Cell Shading Shader](https://gitlab.com/s-ilent/SCSS) to ORL Standard. This provides Furality/Poiyomi-Pathing style audiolink. 
+This module ports the AudioLink code from [Silent's Cell Shading Shader](https://gitlab.com/s-ilent/SCSS) to ORL Standard. This provides Furality/Poiyomi-Pathing style AudioLink. 
 
 **It supports three different styles of pathing maps:**
-1. SCSS/Poiyomi-style audiolink pathing with a Color/Mask map and a Channel/Direction map.
+1. SCSS/Poiyomi-style AudioLink pathing with a Color/Mask map and a Channel/Direction map.
 2. Furality-style with a separate channel (AL band) map and sweep (direction) map.
 3. A simplified Furality-style mode that loses the 4th AL band in favor of packing in the sweep (direction) map into the alpha channel, thus only requiring one texture.
  
@@ -41,7 +41,7 @@ These will be installed automatically by the VCC when you add this package to yo
    
 If the "Add to VCC" button does not work you can manually enter the following url into the Packages settings of the VCC `https://lackofbindings.github.io/ORLModules/index.json` 
 
-If you do not have access to the VCC, there are also unitypackage versions avalible in the [Releases](https://github.com/lackofbindings/ORLModules/releases/latest).
+If you do not have access to the VCC, there are also unitypackage versions available in the [Releases](https://github.com/lackofbindings/ORLModules/releases/latest).
 
 ## Usage
  
