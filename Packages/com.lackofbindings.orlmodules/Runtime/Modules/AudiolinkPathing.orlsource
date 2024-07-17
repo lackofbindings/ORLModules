@@ -27,20 +27,24 @@
 %Properties()
 {
     UI_AlPathingHeader("# AudioLink Pathing", Float) = 0
-    [KeywordEnum(SCSS, Furality, Furality Packed)]_ALPathingMode("AudioLink Pathing Mode", Float) = 0
     _AudiolinkIntensity("AudioLink Emission Intensity", Float) = 1.0
+    
+    UI_AlPathingMapsHeader("## Maps", Float) = 0
+    [KeywordEnum(SCSS, Furality, Furality Packed)]_ALPathingMode("AudioLink Pathing Mode", Float) = 0
     _AudiolinkMaskMap("AudioLink Mask Map", 2D) = "white" {}
     UI_ALMaskMapNoteSCSS("> RGB: Color, A: Mask %ShowIf(_ALPATHINGMODE_SCSS)", Int) = 0
     UI_ALMaskMapNoteFurality("> RGBA: AudioLink Channels 1-4 %ShowIf(_ALPATHINGMODE_FURALITY)", Int) = 0
     UI_ALMaskMapNoteFuralityP("> RGB: AudioLink Channels 1-3, A: Sweep (Direction) %ShowIf(_ALPATHINGMODE_FURALITY_PACKED)", Int) = 0
     [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)]_AudiolinkMaskMapUVSec("AudioLink Mask UV Source", Float) = 0
+    [Space(1)]
     _AudiolinkSweepMap("AudioLink Sweep Map %ShowIf(!_ALPATHINGMODE_FURALITY_PACKED)", 2D) = "gray" {}
     UI_ALSweepMapNoteSCSS("> RGBA: AudioLink Channels 1-4 * Sweep %ShowIf(_ALPATHINGMODE_SCSS)", Int) = 0
     UI_ALSweepMapNoteFurality("> R: Sweep (Direction) %ShowIf(_ALPATHINGMODE_FURALITY)", Int) = 0
     [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)]_AudiolinkSweepMapUVSec("AudioLink Sweep UV Source %ShowIf(!_ALPATHINGMODE_FURALITY_PACKED)", Float) = 0
     [Toggle()]_AudiolinkSweepMapReverse("Reverse Sweep Direction", Float ) = 0.0
     UI_AudiolinkSweepMapReverseNoteSCSS("> Textures made for Poiyomi will sweep in the wrong direction unless reverse is enabled %ShowIf(_ALPATHINGMODE_SCSS && !_AudiolinkSweepMapReverse)", Int) = 0
-
+    
+    UI_AlPathingChannelsHeader("## Channels", Float) = 0
     _alColorR("R Channel Tint", Color)   = (1, 0.333, 0, 0)
     _alColorG("G Channel Tint", Color) = (0, 1, 0.333, 0)
     _alColorB("B Channel Tint", Color)  = (0.33, 0, 1, 0)
@@ -57,6 +61,8 @@
     [Gamma]_alTimeRangeG("G AudioLink Time Range", Range(0, 1)) = 1.0
     [Gamma]_alTimeRangeB("B AudioLink Time Range", Range(0, 1)) = 1.0
     [Gamma]_alTimeRangeA("A AudioLink Time Range %ShowIf(!_ALPATHINGMODE_FURALITY_PACKED)", Range(0, 1)) = 1.0
+
+    UI_AlPathingFallbackHeader("## Fallback", Float) = 0
     [Enum(Disable, 0, Enable, 1, Force on, 2)]_alUseFallback("Enable fallback", Float) = 1
     _alFallbackBPM("Fallback BPM", Float) = 160
 }
