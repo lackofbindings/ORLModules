@@ -27,7 +27,7 @@
 %Properties()
 {
     UI_AlPathingHeader("# AudioLink Pathing", Float) = 0
-    [KeywordEnum(SCSS, Furality, Furality Packed)]_ALPathingMode("AudioLink Pathing Mode", float) = 0
+    [KeywordEnum(SCSS, Furality, Furality Packed)]_ALPathingMode("AudioLink Pathing Mode", Float) = 0
     _AudiolinkIntensity("AudioLink Emission Intensity", Float) = 1.0
     _AudiolinkMaskMap("AudioLink Mask Map", 2D) = "white" {}
     UI_ALMaskMapNoteSCSS("> RGB: Color, A: Mask %ShowIf(_ALPATHINGMODE_SCSS)", Int) = 0
@@ -68,7 +68,8 @@
 
 %ShaderFeatures()
 {
-    #pragma shader_feature_local _ _AUDIOLINK _ALPATHINGMODE_SCSS _ALPATHINGMODE_FURALITY _ALPATHINGMODE_FURALITY_PACKED
+    #pragma shader_feature_local _ _AUDIOLINK
+    #pragma shader_feature_local _ALPATHINGMODE_SCSS _ALPATHINGMODE_FURALITY _ALPATHINGMODE_FURALITY_PACKED
 }
 
 %ShaderDefines()
