@@ -4,11 +4,11 @@ This VPM provides custom modules for the [ORL shader suite](https://shaders.orel
 
 ## Included Modules:
 
-#### Stencil Options
+### Stencil Options
 
 This Module provides the standard stencil masking options (stencil mask value, pass/fail/comparison, etc.)
 
-#### AudioLink Pathing
+### AudioLink Pathing
 
 This module ports the AudioLink code from [Silent's Cell Shading Shader](https://gitlab.com/s-ilent/SCSS) to ORL Standard. This provides Furality/Poiyomi-Pathing style AudioLink. 
 
@@ -17,11 +17,15 @@ This module ports the AudioLink code from [Silent's Cell Shading Shader](https:/
 2. Furality-style with a separate channel (AL band) map and sweep (direction) map.
 3. A simplified Furality-style mode that loses the 4th AL band in favor of packing in the sweep (direction) map into the alpha channel, thus only requiring one texture.
  
-This module also features a toggle to flip the direction of the sweep, since some shaders (Poiyomi, Furality, SCSS) interpret the sweep map differently.
+This module also features a toggle to flip the direction of the sweep, since some shaders (Poiyomi) interpret the sweep map differently.
 
-#### 2nd Emission
+### 2nd Emission
 
 This module adds a secondary emission texture slot. It provides its own tint color, UV channel, and RGB channel options. It shares the same tiling, offsets, sampler, and keyword with the base emission slot. 
+
+### Gradient Map (Grab Pass)
+
+This module multiplies the albedo by a grab pass, where the grab pass has been mapped to a color gradient based on its luminance value (think "Color Ramp" in Blender or "Gradient Map" in Photoshop). This is mostly a novelty, but could be used to make a glass surface that stylizes other objects viewed through it.
 
 ## How to Install
 
@@ -51,6 +55,7 @@ Ready-to-use variants of ORL Standard can be found when making a new material:
 - `orels1/Standard Stencil`
 - `orels1/Standard Audiolink Pathing`
 - `orels1/Standard 2nd Emission`
+- `orels1/Standard Gradient Map`
 
 #### As a module
 

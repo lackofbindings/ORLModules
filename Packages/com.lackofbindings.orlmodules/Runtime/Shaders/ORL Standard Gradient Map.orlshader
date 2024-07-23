@@ -1,0 +1,16 @@
+%ShaderName("orels1/Standard Gradient Map")
+%CustomEditor("ORL.ShaderInspector.InspectorGUI")
+
+%Includes()
+{
+    "@/Shaders/ORL Standard",
+    "/Packages/com.lackofbindings.orlmodules/Runtime/Modules/GrabGradientMap",
+    "self"
+}
+
+%ShaderTags()
+{
+    "Queue" = "Transparent"
+    "IgnoreProjector" = "True"
+    "RenderType" = "Opaque"
+}

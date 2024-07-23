@@ -1,0 +1,65 @@
+%Properties()
+{
+    UI_GradientMapHeader("# Gradient Map (Grab Pass)", Float) = 0
+    _GradientMap ("Gradient (RGB) %Gradient()", 2D) = "white" {}
+    _DistortMagnitude("Distortion Magnitude", Range(0,1)) = 0.05
+    _DistortThreshold("Distortion Threshold", Range(0,1)) = 0.01
+}
+
+%ShaderDefines()
+{
+    #define EXTRA_V2F_0
+}
+
+%PrePasses()
+{
+    GrabPass { "_GrabTexture1" }
+
+    Pass
+    {
+        ZWrite On Lighting Off Cull Off Fog{ Mode Off } Blend One Zero
+        LOD 200
+    }
+}
+
+%Variables()
+{ 
+    half _DistortThreshold;
+    half _DistortMagnitude;
+}
+
+%Textures()
+{
+    TEXTURE2D(_GradientMap);
+    SAMPLER(sampler_GradientMap);
+    SAMPLER(_GrabTexture1);
+}
+
+%Vertex("GrabPassVertex")
+{
+    void GrabPassVertex(VertexData v, inout FragmentData o)
+    {
+        half4 vertex = UnityObjectToClipPos(v.vertex);
+        o.extraV2F0 = ComputeGrabScreenPos(vertex); // GrabPass UV
+    }
+}
+
+%Fragment("GrabPassFragment")
+{
+    float linearToGamma(fixed4 c)
+    {
+        return pow(sqrt(c.rgb) + 0.25, 2.0);
+    }
+
+    void GrabPassFragment(FragmentData i, inout SurfaceData o)
+    {
+        // Distortion: offset the UV data of the grab texture based on the normal map
+        i.extraV2F0.xy += (saturate(o.Normal.rg - _DistortThreshold)) * _DistortMagnitude;
+
+        // Sample grab texture and map Luminance to value on input gradient
+        fixed4 color_GrabTex = tex2Dproj(_GrabTexture1, UNITY_PROJ_COORD(i.extraV2F0)); // apply the screen texture in the correct position
+        float2 gradientUV = float2(linearToGamma(Luminance(color_GrabTex.rgb)), 0.0); // convert luminance to UV X coordinate on gradient
+        fixed4 color_Result = SAMPLE_TEXTURE2D(_GradientMap, sampler_GradientMap, gradientUV);
+        o.Albedo *= sqrt(color_Result.rgb); //sqrt makes sRGB gradient textures have the right color values.
+    }
+}
