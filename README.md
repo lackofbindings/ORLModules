@@ -27,6 +27,12 @@ This module adds a secondary emission texture slot. It provides its own tint col
 
 This module multiplies the albedo by a grab pass, where the grab pass has been mapped to a color gradient based on its luminance value (think "Color Ramp" in Blender or "Gradient Map" in Photoshop). This is mostly a novelty, but could be used to make a glass surface that stylizes other objects viewed through it.
 
+### UDIM Tile Discard
+
+> ⚠️ This module is still a work in progress and may not work as intended and may break with future updates.
+
+This module ports the "Inventory System" from SCSS. This is also known in Poiyomi as "UV Tile Discard". This allows you define sections of you mesh that can be toggled during runtime by offsetting their UVs along whole numbers of U or V (UDIM tiles). This module attempts to be compatible with both formats *(16x1 and 4x4) or any other format as long as the max tiles is 16 (not including 0)*, though that is unstable at the time of this writing. 
+
 ## How to Install
 
 ### Dependencies

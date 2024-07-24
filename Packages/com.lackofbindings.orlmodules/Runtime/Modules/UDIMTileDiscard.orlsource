@@ -1,0 +1,134 @@
+%Properties()
+{
+    UI_UDIMDiscardHeader("# UDIM Tile Discard", Float) = 0
+    [ToggleUI]_UseInventory("Use Inventory", Float) = 0.0
+    _InventoryStride("Inventory Stride", Int) = 1
+    [IntRange]_InventoryRows("Rows", Range(1,16)) = 16
+    [IntRange]_InventoryCols("Cols", Range(1,16)) = 1
+    [ToggleUI]_InventoryItem01Animated("Toggle Item 1", Float) = 1.0
+    [ToggleUI]_InventoryItem02Animated("Toggle Item 2", Float) = 1.0
+    [ToggleUI]_InventoryItem03Animated("Toggle Item 3", Float) = 1.0
+    [ToggleUI]_InventoryItem04Animated("Toggle Item 4", Float) = 1.0
+    [ToggleUI]_InventoryItem05Animated("Toggle Item 5", Float) = 1.0
+    [ToggleUI]_InventoryItem06Animated("Toggle Item 6", Float) = 1.0
+    [ToggleUI]_InventoryItem07Animated("Toggle Item 7", Float) = 1.0
+    [ToggleUI]_InventoryItem08Animated("Toggle Item 8", Float) = 1.0
+    [ToggleUI]_InventoryItem09Animated("Toggle Item 9", Float) = 1.0
+    [ToggleUI]_InventoryItem10Animated("Toggle Item 10", Float) = 1.0
+    [ToggleUI]_InventoryItem11Animated("Toggle Item 11", Float) = 1.0
+    [ToggleUI]_InventoryItem12Animated("Toggle Item 12", Float) = 1.0
+    [ToggleUI]_InventoryItem13Animated("Toggle Item 13", Float) = 1.0
+    [ToggleUI]_InventoryItem14Animated("Toggle Item 14", Float) = 1.0
+    [ToggleUI]_InventoryItem15Animated("Toggle Item 15", Float) = 1.0
+    [ToggleUI]_InventoryItem16Animated("Toggle Item 16", Float) = 1.0
+}
+
+%Variables()
+{
+    half _UseInventory;
+    uint _InventoryStride;
+    uint _InventoryRows;
+    uint _InventoryCols;
+    half _InventoryItem01Animated;
+    half _InventoryItem02Animated;
+    half _InventoryItem03Animated;
+    half _InventoryItem04Animated;
+    half _InventoryItem05Animated;
+    half _InventoryItem06Animated;
+    half _InventoryItem07Animated;
+    half _InventoryItem08Animated;
+    half _InventoryItem09Animated;
+    half _InventoryItem10Animated;
+    half _InventoryItem11Animated;
+    half _InventoryItem12Animated;
+    half _InventoryItem13Animated;
+    half _InventoryItem14Animated;
+    half _InventoryItem15Animated;
+    half _InventoryItem16Animated;
+}
+
+%Vertex("UDIMDiscardVert")
+{
+    inline float getInventoryMask(float2 in_texcoord)
+    {
+        // Initialize mask. This will cut things out.
+        float inventoryMask = 0.0;
+
+        // Which UV section are we in?
+        uint udimX = floor(in_texcoord.x / _InventoryStride);
+        uint udimY = floor(in_texcoord.y / _InventoryStride);
+        uint itemID = (uint(floor(_InventoryCols)) * udimY) + udimX;
+
+        // If the item ID is zero or below, always render.
+        // But if it's higher, check against toggles.
+        inventoryMask += (itemID <= 0);
+        inventoryMask += (itemID == 1) * _InventoryItem01Animated;
+        inventoryMask += (itemID == 2) * _InventoryItem02Animated;
+        inventoryMask += (itemID == 3) * _InventoryItem03Animated;
+        inventoryMask += (itemID == 4) * _InventoryItem04Animated;
+        inventoryMask += (itemID == 5) * _InventoryItem05Animated;
+        inventoryMask += (itemID == 6) * _InventoryItem06Animated;
+        inventoryMask += (itemID == 7) * _InventoryItem07Animated;
+        inventoryMask += (itemID == 8) * _InventoryItem08Animated;
+        inventoryMask += (itemID == 9) * _InventoryItem09Animated;
+        inventoryMask += (itemID == 10) * _InventoryItem10Animated;
+        inventoryMask += (itemID == 11) * _InventoryItem11Animated;
+        inventoryMask += (itemID == 12) * _InventoryItem12Animated;
+        inventoryMask += (itemID == 13) * _InventoryItem13Animated;
+        inventoryMask += (itemID == 14) * _InventoryItem14Animated;
+        inventoryMask += (itemID == 15) * _InventoryItem15Animated;
+        inventoryMask += (itemID == 16) * _InventoryItem16Animated;
+    
+        // Higher than 17? Enabled by default
+        inventoryMask += (itemID >= 17);
+    
+        return round(inventoryMask);
+    }
+    
+    
+    void UDIMDiscardVert(inout VertexData v, inout FragmentData o)
+    {   
+        // Simple inventory handling.
+        float inventoryMask = getInventoryMask(v.uv0);
+        
+        // Apply the inventory mask.
+        // Set the output variables based on the mask to completely remove it.
+        // - Set the clip-space position to one that won't be rendered
+        // - Set the vertex alpha to zero
+        // - Disable outlines
+        if (_UseInventory)
+        {
+            // Original from SCSS
+            // o.pos.z =     inventoryMask ? o.pos.z : 1e+9;
+            // o.posWorld =  inventoryMask ? o.posWorld : 0;
+            // o.vertex =    inventoryMask ? o.vertex : 1e+9;
+            // o.color.a =   inventoryMask ? o.color.a : -1;
+            // o.extraData.xz = inventoryMask ? o.extraData.xz : 0;
+
+            o.pos.z =     inventoryMask ? o.pos.z : 1e+9;
+            o.worldPos =  inventoryMask ? o.worldPos : 0;
+            v.vertex =    inventoryMask ? v.vertex : 1e+9;
+            v.color.a =   inventoryMask ? v.color.a : -1;
+
+            // DEBUG Only
+            // float inventoryMask = 0.0;
+            // uint udimX = floor(v.uv0.x);
+            // uint udimY = floor(v.uv0.y);
+            // uint itemID = (_InventoryCols * udimY) + udimX;
+            // 
+            // v.color.rgb = 0;
+            // // v.color.r = float(udimX) / _InventoryCols;
+            // // v.color.g = float(udimY) / _InventoryRows;
+            // v.color.b = float(itemID) / (_InventoryRows * _InventoryCols);
+        }
+    }
+}
+
+// DEBUG Only
+%Fragment("UDIMDebugFrag")
+{
+    void UDIMDebugFrag(MeshData d, inout SurfaceData o)
+    {
+        // o.Albedo = d.vertexColor;
+    }
+}
