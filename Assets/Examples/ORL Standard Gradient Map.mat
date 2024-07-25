@@ -7,21 +7,21 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ORL Standard Stencil A
-  m_Shader: {fileID: -8512187303908658807, guid: 7e537f74c9ef53044867289ede341dcf,
+  m_Name: ORL Standard Gradient Map
+  m_Shader: {fileID: -8512187303908658807, guid: 59f6cd35009e3e94a9922e4deb7b5ae6,
     type: 3}
-  m_ShaderKeywords: BAKERY_NONE BAKERY_SHNONLINEAR DETAILS_MODE_PACKED GSAA
+  m_ShaderKeywords: BAKERY_NONE BAKERY_SHNONLINEAR DETAILS_MODE_PACKED GSAA MOBILE_TONEMAP_ACES
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2451
+  m_CustomRenderQueue: 3000
   stringTagMap: {}
   disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
     - _BumpMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 210e9dfc91d6b244e9fc35371a2e277a, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DDetailsMap:
@@ -50,6 +50,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
         m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _GradientMap:
+        m_Texture: {fileID: 2800000, guid: 6468a4b473c56d24d905890bcc9e6a5b, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Height:
@@ -92,7 +96,7 @@ Material:
     - BAKERY: 0
     - DETAILS_MODE: 0
     - MOBILE_TONEMAP: 0
-    - UI_AdvancedSettingsHeader: 1
+    - UI_AdvancedSettingsHeader: 0
     - UI_AdvancedSettingsStancilHeader: 1
     - UI_ApplyColorCorrectionNote: 0
     - UI_BakeryHeader: 0
@@ -106,6 +110,7 @@ Material:
     - UI_GITweaksHeader: 0
     - UI_GSAAHeader: 0
     - UI_GSAANote: 0
+    - UI_GradientMapHeader: 1
     - UI_IgnoreMaskNote: 0
     - UI_IgnoreRealtimeGINote: 0
     - UI_InternalHeader: 0
@@ -117,8 +122,6 @@ Material:
     - UI_ParallaxHeader: 0
     - UI_RealtimeShadowSpecularOcclusionNote: 0
     - UI_ShadeVertexLightsNote: 0
-    - UI_StencilDeprecationNote: 0
-    - UI_StencilSettingsHeader: 1
     - UI_VRCDocs: 0
     - UI_VRCFeaturesHeader: 0
     - UI_VRCHideCameraHeader: 0
@@ -151,6 +154,8 @@ Material:
     - _DetailMaskChannel: 2
     - _DetailNormalMapScale: 1
     - _DetailsOverlay: 0
+    - _DistortMagnitude: 0.05
+    - _DistortThreshold: 0.01
     - _DstBlend: 0
     - _EmissionChannel: 0
     - _EmissionEnabled: 0
@@ -182,20 +187,16 @@ Material:
     - _RoughnessMode: 0
     - _ShadeVertexLights: 0
     - _SmoothChannel: 3
-    - _Smoothness: 0.95
+    - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecOcclusion: 0.75
     - _SpecularHighlights: 1
     - _SpecularRoughnessMod: 1
     - _SrcBlend: 1
     - _StencilComp: 8
-    - _StencilCompare: 8
-    - _StencilFail: 0
     - _StencilFailOp: 0
-    - _StencilPass: 2
-    - _StencilPassOp: 2
-    - _StencilRef: 10
-    - _StencilZFail: 0
+    - _StencilPassOp: 0
+    - _StencilRef: 0
     - _StencilZFailOp: 0
     - _UVSec: 0
     - _VRCFallbackTag: 0
@@ -209,7 +210,7 @@ Material:
     - _ZTest: 4
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 0, g: 0, b: 0, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _MetallicRemap: {r: 0, g: 1, b: 0, a: 1}
     - _SmoothnessRemap: {r: 0, g: 1, b: 0, a: 1}
