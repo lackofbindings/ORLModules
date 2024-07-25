@@ -31,7 +31,7 @@ This module multiplies the albedo by a grab pass, where the grab pass has been m
 
 > ⚠️ This module is still a work in progress and may not work as intended and may break with future updates.
 
-This module ports the "Inventory System" from SCSS. This is also known in Poiyomi as "UV Tile Discard". This allows you define sections of you mesh that can be toggled during runtime by offsetting their UVs along whole numbers of U or V (UDIM tiles). This module attempts to be compatible with both formats *(16x1 and 4x4) or any other format as long as the max tiles is 16 (not including 0)*, though that is unstable at the time of this writing. 
+This module ports the "Inventory System" code from [Silent's Cell Shading Shader](https://gitlab.com/s-ilent/SCSS). This is also known in Poiyomi as "UV Tile Discard". This allows you define sections of you mesh that can be toggled during runtime by offsetting their UVs along whole numbers of U or V (UDIM tiles). This module attempts to be compatible with both formats *(16x1 and 4x4) or any other format as long as the max tiles is 16 (not including 0)*, though that is unstable at the time of this writing. 
 
 ### RGBA Color Mask
 
