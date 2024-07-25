@@ -1,0 +1,56 @@
+%Properties()
+{
+    UI_RGBAColorMaskHeader("# RGBA Color Masking", Int) = 0
+    [Enum(Texture, 0, Vertex Color, 1)]_RGBAColorMaskType("Mask Type", Int) = 0
+    _RGBAColorMaskMap("Mask Map > %ShowIf(_RGBAColorMaskType == 0)", 2D) = "white" { }
+    [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)]_RGBAColorMaskUVChannel("Mask UV Channel", Float) = 0
+    _RGBAColorMaskRColor("R Channel Color", Color) = (1,0,0,0)
+    _RGBAColorMaskBColor("G Channel Color", Color) = (0,1,0,0)
+    _RGBAColorMaskGColor("B Channel Color", Color) = (0,0,1,0)
+    _RGBAColorMaskAColor("A Channel Color", Color) = (1,1,1,0)
+}
+
+%Variables()
+{
+    int _RGBAColorMaskType;
+
+    int _RGBAColorMaskUVChannel;
+    half4 _RGBAColorMaskMap_ST;
+    
+    half4 _RGBAColorMaskRColor;
+    half4 _RGBAColorMaskGColor;
+    half4 _RGBAColorMaskBColor;
+    half4 _RGBAColorMaskAColor;
+}
+
+%Textures()
+{
+    TEXTURE2D(_RGBAColorMaskMap);
+    SAMPLER(sampler_RGBAColorMaskMap);
+}
+
+%Fragment("RGBAColorMaskFrag")
+{
+    void RGBAColorMaskFrag(MeshData d, inout SurfaceData o)
+    {
+        // UV Channel selection
+        float2 uv = d.uv0.xy;
+        switch(_RGBAColorMaskUVChannel)
+        {
+            case 1: uv = d.uv1.xy; break;
+            case 2: uv = d.uv2.xy; break;
+            case 3: uv = d.uv3.xy; break;
+            default: uv = d.uv0.xy; break;
+        }
+        uv = uv * _RGBAColorMaskMap_ST.xy + _RGBAColorMaskMap_ST.zw;
+
+        // Sample either mask texture or vertex colors
+        half4 mask = _RGBAColorMaskType == 0 ? SAMPLE_TEXTURE2D(_RGBAColorMaskMap, sampler_RGBAColorMaskMap, uv.xy) : d.vertexColor;
+
+        // Mix colors into albedo based on mask
+        o.Albedo = lerp(o.Albedo, _RGBAColorMaskRColor.rgb, mask.r * _RGBAColorMaskRColor.a);
+        o.Albedo = lerp(o.Albedo, _RGBAColorMaskGColor.rgb, mask.g * _RGBAColorMaskGColor.a);
+        o.Albedo = lerp(o.Albedo, _RGBAColorMaskBColor.rgb, mask.b * _RGBAColorMaskBColor.a);
+        o.Albedo = lerp(o.Albedo, _RGBAColorMaskAColor.rgb, mask.a * _RGBAColorMaskAColor.a);
+    }
+}

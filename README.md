@@ -33,6 +33,10 @@ This module multiplies the albedo by a grab pass, where the grab pass has been m
 
 This module ports the "Inventory System" from SCSS. This is also known in Poiyomi as "UV Tile Discard". This allows you define sections of you mesh that can be toggled during runtime by offsetting their UVs along whole numbers of U or V (UDIM tiles). This module attempts to be compatible with both formats *(16x1 and 4x4) or any other format as long as the max tiles is 16 (not including 0)*, though that is unstable at the time of this writing. 
 
+### RGBA Color Mask
+
+This module allows you to supply a mask texture and 4 colors, where each channel of the mask defines the region where the color will be mixed with the base color. Each color is applied in-order of the channels of the mask. The alpha of each color swatch can be used to control intensity.
+
 ## How to Install
 
 ### Dependencies
@@ -61,7 +65,9 @@ Ready-to-use variants of ORL Standard can be found when making a new material:
 - `orels1/Standard Stencil`
 - `orels1/Standard Audiolink Pathing`
 - `orels1/Standard 2nd Emission`
-- `orels1/Standard Gradient Map`
+- ...etc.
+
+See the [Shaders Directory](Packages/com.lackofbindings.orlmodules/Runtime/Shaders/) for all pre-made shaders.
 
 #### As a module
 
@@ -74,5 +80,7 @@ The modules can also be included in any `.orlshader` or `.orlsource` by listing 
     "self"
 }
 ```
-See the official [ORL Shader Generator documentation](https://shaders.orels.sh/docs/generator/development-basics) for more info.
+See the [Modules Directory](Packages/com.lackofbindings.orlmodules/Runtime/Modules/) for all available modules.
+
+See the official [ORL Shader Generator documentation](https://shaders.orels.sh/docs/generator/development-basics) for more info info on building your own shaders.
 
