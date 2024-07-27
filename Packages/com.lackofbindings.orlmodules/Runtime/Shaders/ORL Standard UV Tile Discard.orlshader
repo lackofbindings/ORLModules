@@ -4,7 +4,7 @@
 %Includes()
 {
     "@/Shaders/ORL Standard",
-    "/Packages/com.lackofbindings.orlmodules/Runtime/Modules/UDIMTileDiscard",
+    "/Packages/com.lackofbindings.orlmodules/Runtime/Modules/UVTileDiscard",
     "self"
 }
 
