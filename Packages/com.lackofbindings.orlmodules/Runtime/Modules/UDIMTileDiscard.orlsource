@@ -26,35 +26,42 @@
 
 %Properties()
 {
-    UI_UDIMDiscardHeader("# UDIM Tile Discard", Float) = 0
-    [ToggleUI]_UseInventory("Use Inventory", Float) = 0.0
-    _InventoryStride("Inventory Stride", Int) = 1
-    [IntRange]_InventoryRows("Rows", Range(1,16)) = 16
-    [IntRange]_InventoryCols("Cols", Range(1,16)) = 1
-    [ToggleUI]_InventoryItem01Animated("Toggle Item 1", Float) = 1.0
-    [ToggleUI]_InventoryItem02Animated("Toggle Item 2", Float) = 1.0
-    [ToggleUI]_InventoryItem03Animated("Toggle Item 3", Float) = 1.0
-    [ToggleUI]_InventoryItem04Animated("Toggle Item 4", Float) = 1.0
-    [ToggleUI]_InventoryItem05Animated("Toggle Item 5", Float) = 1.0
-    [ToggleUI]_InventoryItem06Animated("Toggle Item 6", Float) = 1.0
-    [ToggleUI]_InventoryItem07Animated("Toggle Item 7", Float) = 1.0
-    [ToggleUI]_InventoryItem08Animated("Toggle Item 8", Float) = 1.0
-    [ToggleUI]_InventoryItem09Animated("Toggle Item 9", Float) = 1.0
-    [ToggleUI]_InventoryItem10Animated("Toggle Item 10", Float) = 1.0
-    [ToggleUI]_InventoryItem11Animated("Toggle Item 11", Float) = 1.0
-    [ToggleUI]_InventoryItem12Animated("Toggle Item 12", Float) = 1.0
-    [ToggleUI]_InventoryItem13Animated("Toggle Item 13", Float) = 1.0
-    [ToggleUI]_InventoryItem14Animated("Toggle Item 14", Float) = 1.0
-    [ToggleUI]_InventoryItem15Animated("Toggle Item 15", Float) = 1.0
-    [ToggleUI]_InventoryItem16Animated("Toggle Item 16", Float) = 1.0
+    UI_UVTDiscardHeader("# UV Tile Discard", Int) = 0
+    [Toggle(UV_DISCARD)]_UVDiscardOn("Enable UV Discard", Int) = 0
+    [Enum(UV1, 0, UV2, 1, UV3, 2, UV4, 3)]_InventoryUVSet("UV Set %ShowIf(_UVDiscardOn)", Int) = 2
+    [IntRange]_InventoryCols("Tiles X %ShowIf(_UVDiscardOn)", Range(1,17)) = 17
+    [IntRange]_InventoryRows("Tiles Y %ShowIf(_UVDiscardOn)", Range(1,16)) = 1
+    UI_UVTDiscardNote("> Counting starts at the bottom left and goes across each row up to the top right. \nRemember to count zero! %ShowIf(_UVDiscardOn)", Int) = 0
+    [ToggleUI]_InventoryItem00Animated("Toggle Tile 0 %ShowIf(_UVDiscardOn)", Int) = 1
+    [ToggleUI]_InventoryItem01Animated("Toggle Tile 1 %ShowIf(_UVDiscardOn)", Int) = 1
+    [ToggleUI]_InventoryItem02Animated("Toggle Tile 2 %ShowIf(_UVDiscardOn)", Int) = 1
+    [ToggleUI]_InventoryItem03Animated("Toggle Tile 3 %ShowIf(_UVDiscardOn)", Int) = 1
+    [ToggleUI]_InventoryItem04Animated("Toggle Tile 4 %ShowIf(_UVDiscardOn)", Int) = 1
+    [ToggleUI]_InventoryItem05Animated("Toggle Tile 5 %ShowIf(_UVDiscardOn)", Int) = 1
+    [ToggleUI]_InventoryItem06Animated("Toggle Tile 6 %ShowIf(_UVDiscardOn)", Int) = 1
+    [ToggleUI]_InventoryItem07Animated("Toggle Tile 7 %ShowIf(_UVDiscardOn)", Int) = 1
+    [ToggleUI]_InventoryItem08Animated("Toggle Tile 8 %ShowIf(_UVDiscardOn)", Int) = 1
+    [ToggleUI]_InventoryItem09Animated("Toggle Tile 9 %ShowIf(_UVDiscardOn)", Int) = 1
+    [ToggleUI]_InventoryItem10Animated("Toggle Tile 10 %ShowIf(_UVDiscardOn)", Int) = 1
+    [ToggleUI]_InventoryItem11Animated("Toggle Tile 11 %ShowIf(_UVDiscardOn)", Int) = 1
+    [ToggleUI]_InventoryItem12Animated("Toggle Tile 12 %ShowIf(_UVDiscardOn)", Int) = 1
+    [ToggleUI]_InventoryItem13Animated("Toggle Tile 13 %ShowIf(_UVDiscardOn)", Int) = 1
+    [ToggleUI]_InventoryItem14Animated("Toggle Tile 14 %ShowIf(_UVDiscardOn)", Int) = 1
+    [ToggleUI]_InventoryItem15Animated("Toggle Tile 15 %ShowIf(_UVDiscardOn)", Int) = 1
+    [ToggleUI]_InventoryItem16Animated("Toggle Tile 16 %ShowIf(_UVDiscardOn)", Int) = 1
+}
+
+%ShaderFeatures()
+{
+    #pragma shader_feature_local UV_DISCARD
 }
 
 %Variables()
 {
-    half _UseInventory;
-    uint _InventoryStride;
-    uint _InventoryRows;
-    uint _InventoryCols;
+    int _InventoryUVSet;
+    int _InventoryRows;
+    int _InventoryCols;
+    half _InventoryItem00Animated;
     half _InventoryItem01Animated;
     half _InventoryItem02Animated;
     half _InventoryItem03Animated;
@@ -73,21 +80,23 @@
     half _InventoryItem16Animated;
 }
 
-%Vertex("UDIMDiscardVert")
+%Vertex("UVTDiscardVert", -1)
 {
-    inline float getInventoryMask(float2 in_texcoord)
+    inline float getInventoryMask(float2 uv)
     {
-        // Initialize mask. This will cut things out.
+        // Initialize mask, This will cut things out
         float inventoryMask = 0.0;
 
         // Which UV section are we in?
-        uint udimX = floor(in_texcoord.x / _InventoryStride);
-        uint udimY = floor(in_texcoord.y / _InventoryStride);
-        uint itemID = (uint(floor(_InventoryCols)) * udimY) + udimX;
+        uv = floor(uv);
+        int itemID = (_InventoryCols * uv.y) + uv.x;
 
-        // If the item ID is zero or below, always render.
-        // But if it's higher, check against toggles.
-        inventoryMask += (itemID <= 0);
+        // Check against limits
+        inventoryMask += (uv.y >= _InventoryRows);
+        inventoryMask += (uv.x >= _InventoryCols);
+
+        // Check against toggles
+        inventoryMask += (itemID <= 0) * _InventoryItem00Animated;
         inventoryMask += (itemID == 1) * _InventoryItem01Animated;
         inventoryMask += (itemID == 2) * _InventoryItem02Animated;
         inventoryMask += (itemID == 3) * _InventoryItem03Animated;
@@ -112,18 +121,27 @@
     }
     
     
-    void UDIMDiscardVert(inout VertexData v, inout FragmentData o)
+    void UVTDiscardVert(inout VertexData v, inout FragmentData o)
     {   
-        // Simple inventory handling.
-        float inventoryMask = getInventoryMask(v.uv0);
-        
-        // Apply the inventory mask.
-        // Set the output variables based on the mask to completely remove it.
-        // - Set the clip-space position to one that won't be rendered
-        // - Set the vertex alpha to zero
-        // - Disable outlines
-        if (_UseInventory)
-        {
+        #ifdef UV_DISCARD
+            // Choose UV channel
+            half2 uv = v.uv0;
+            switch (_InventoryUVSet)
+            {
+                case 0: uv = v.uv0; break;
+                case 1: uv = v.uv1; break;
+                case 2: uv = v.uv2; break;
+                case 3: uv = v.uv3; break;
+            }
+            // Determine if this vertex should be discarded
+            float inventoryMask = getInventoryMask(uv);
+            
+            // Apply the inventory mask.
+            // Set the output variables based on the mask to completely remove it.
+            // - Set the clip-space position to one that won't be rendered
+            // - Set the vertex alpha to zero
+            // - Disable outlines
+            
             // Original from SCSS
             // o.pos.z =     inventoryMask ? o.pos.z : 1e+9;
             // o.posWorld =  inventoryMask ? o.posWorld : 0;
@@ -131,30 +149,14 @@
             // o.color.a =   inventoryMask ? o.color.a : -1;
             // o.extraData.xz = inventoryMask ? o.extraData.xz : 0;
 
-            o.pos.z =     inventoryMask ? o.pos.z : 1e+9;
-            o.worldPos =  inventoryMask ? o.worldPos : 0;
-            v.vertex =    inventoryMask ? v.vertex : 1e+9;
-            v.color.a =   inventoryMask ? v.color.a : -1;
+            // Ported to ORL
+            // o.pos.z =     inventoryMask ? o.pos.z : asfloat(-1);
+            // o.worldPos =  inventoryMask ? o.worldPos : 0;
+            // v.vertex =    inventoryMask ? v.vertex : asfloat(-1);
+            // v.color.a =   inventoryMask ? v.color.a : -1;
 
-            // DEBUG Only
-            // float inventoryMask = 0.0;
-            // uint udimX = floor(v.uv0.x);
-            // uint udimY = floor(v.uv0.y);
-            // uint itemID = (_InventoryCols * udimY) + udimX;
-            // 
-            // v.color.rgb = 0;
-            // // v.color.r = float(udimX) / _InventoryCols;
-            // // v.color.g = float(udimY) / _InventoryRows;
-            // v.color.b = float(itemID) / (_InventoryRows * _InventoryCols);
-        }
-    }
-}
-
-// DEBUG Only
-%Fragment("UDIMDebugFrag")
-{
-    void UDIMDebugFrag(MeshData d, inout SurfaceData o)
-    {
-        // o.Albedo = d.vertexColor;
+            // From ORL UVTDiscard
+            v.vertex =    inventoryMask ? v.vertex : asfloat(-1);
+        #endif
     }
 }

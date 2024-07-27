@@ -27,11 +27,22 @@ This module adds a secondary emission texture slot. It provides its own tint col
 
 This module multiplies the albedo by a grab pass, where the grab pass has been mapped to a color gradient based on its luminance value (think "Color Ramp" in Blender or "Gradient Map" in Photoshop). This is mostly a novelty, but could be used to make a glass surface that stylizes other objects viewed through it.
 
-### UDIM Tile Discard
+### UV Tile Discard
 
-> ⚠️ This module is still a work in progress and may not work as intended and may break with future updates.
+This module is based on code from the ["Inventory System"](https://gitlab.com/s-ilent/SCSS/-/wikis/Manual/Inventory-System)  from Silent's Cell Shading Shader as well as [Orels' UV Discard Module](https://shaders.orels.sh/docs/toon/uv-discard). 
 
-This module ports the "Inventory System" code from [Silent's Cell Shading Shader](https://gitlab.com/s-ilent/SCSS). This is also known in Poiyomi as "UV Tile Discard". This allows you define sections of you mesh that can be toggled during runtime by offsetting their UVs along whole numbers of U or V (UDIM tiles). This module attempts to be compatible with both formats *(16x1 and 4x4) or any other format as long as the max tiles is 16 (not including 0)*, though that is unstable at the time of this writing. 
+This allows you toggle sections of your mesh during runtime by animating the corresponding checkbox in the material. Sections can be defined by offsetting their UVs along whole numbers of U or V (UDIM tiles). It is recommended to use a secondary UV set for this, as to not mangle the UVs used for texturing. Please ensure your UV islands have a small gap between tile boundaries, otherwise vertices may end up accidentally assigned to the neighboring tile.
+
+It is intended to maintain compatibility with the following similar features:
+1. SCSS "Inventory System":
+   - Set `X Tiles` to **17** and `Y Tiles` to **1** 
+   - Animated property names have been retained for drop-in compatibility. 
+2. Poiyomi "UV Tile Discard":
+   - Set `X Tiles` to **4** and `Y Tiles` to **4**
+3. ORL "UV Discard":
+   - Set `X Tiles` to **10** and `Y Tiles` to **1** 
+
+Also note that a more simple module that serves the same purpose is already included with the ORL Shader Suite under `@/Modules/Toon/UVDiscard`. The focus of this module is compatibility with existing avatar meshes.
 
 ### RGBA Color Mask
 
