@@ -48,6 +48,10 @@ Also note that a more simple module that serves the same purpose is already incl
 
 This module allows you to supply a mask texture and 4 colors, where each channel of the mask defines the region where the color will be mixed with the base color. Each color is applied in-order of the channels of the mask. The alpha of each color swatch can be used to control intensity.
 
+### Color Adjust
+
+This module provides Hue, Saturation, and Brightness sliders to adjust both the Albedo colors and Emission colors (if enabled). It shares the same mask texture and sampler with ORL Standard. It also allows you to select a channel of the mask texture to use to mask the effect. Color adjustment algorithms from [Poiyomi Toon Shader](https://github.com/poiyomi/PoiyomiToonShader).
+
 ## How to Install
 
 ### Dependencies

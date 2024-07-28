@@ -1,0 +1,170 @@
+// Color adjustment code from Poiyomi Toon Shader (https://github.com/poiyomi/PoiyomiToonShader)
+// ORL module by lackofbindings.
+// Poiyomi code falls under the following license:
+
+// MIT License
+//
+// Copyright (c) 2023 Poiyomi Inc.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+
+%Properties()
+{
+    UI_ColorAdjHeader("# Color Adjustment", Int) = 1
+    _MaskMap("Mask Map", 2D) =  "white" { }
+    [Enum(UV1, 0, UV2, 1, UV3, 2, UV4, 3)]_ColorAdjMaskUVChannel("UV Set %ShowIf(_MaskMap)", Int) = 0
+    UI_ColorAdjAlbedoHeader("## Albedo", Int) = 1
+    [Enum(None, 0, R, 1, G, 2, B, 3, A, 4)][_ColorAdjMaskMap] _ColorAdjMaskChannel("Mask Channel %ShowIf(_MaskMap)", Int) =  0
+    _ColorAdjAlbedoH("Hue", Range(0, 1)) = 0
+    _ColorAdjAlbedoS("Saturation", Range(-1, 10)) = 0
+    _ColorAdjAlbedoB("Brightness", Range(-1, 1)) = 0
+    UI_ColorAdjEmissionHeader("## Emission %ShowIf(_EMISSION)", Int) = 1
+    _ColorAdjEmissionH("Hue %ShowIf(_EMISSION)", Range(0, 1)) = 0
+    _ColorAdjEmissionS("Saturation %ShowIf(_EMISSION)", Range(-1, 10)) = 0
+    _ColorAdjEmissionB("Brightness %ShowIf(_EMISSION)", Range(-1, 1)) = 0
+}
+
+%ShaderDefines()
+{
+    #define PI float(3.14159265359)
+}
+
+%Variables()
+{
+    int _ColorAdjMaskChannel;
+    int _ColorAdjMaskUVChannel;
+
+    float _ColorAdjAlbedoH;
+    float _ColorAdjAlbedoS;
+    float _ColorAdjAlbedoB;
+
+    #if defined(_EMISSION)
+    float _ColorAdjEmissionH;
+    float _ColorAdjEmissionS;
+    float _ColorAdjEmissionB;
+    #endif
+}
+
+%Textures()
+{
+    TEXTURE2D(_MaskMap);
+    SAMPLER(sampler_MaskMap);
+}
+
+%Fragment("ColorAdjFrag", 1)
+{
+    // Color Adjustment code by poiyomi 
+
+    float3 linear_srgb_to_oklab(float3 c)
+    {
+        float l = 0.4122214708 * c.x + 0.5363325363 * c.y + 0.0514459929 * c.z;
+        float m = 0.2119034982 * c.x + 0.6806995451 * c.y + 0.1073969566 * c.z;
+        float s = 0.0883024619 * c.x + 0.2817188376 * c.y + 0.6299787005 * c.z;
+        
+        float l_ = pow(l, 1.0 / 3.0);
+        float m_ = pow(m, 1.0 / 3.0);
+        float s_ = pow(s, 1.0 / 3.0);
+        
+        return float3(
+        0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_,
+        1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_,
+        0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_
+        );
+    }
+    
+    float3 oklab_to_linear_srgb(float3 c)
+    {
+        float l_ = c.x + 0.3963377774 * c.y + 0.2158037573 * c.z;
+        float m_ = c.x - 0.1055613458 * c.y - 0.0638541728 * c.z;
+        float s_ = c.x - 0.0894841775 * c.y - 1.2914855480 * c.z;
+        
+        float l = l_ * l_ * l_;
+        float m = m_ * m_ * m_;
+        float s = s_ * s_ * s_;
+        
+        return float3(
+        + 4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+        - 1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+        - 0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s
+        );
+    }
+
+    float3 poiHueShift(float3 color, float shift)
+    {
+        float3 oklab = linear_srgb_to_oklab(max(color, 0.0000000001));
+        float hue = atan2(oklab.z, oklab.y);
+        hue += shift * PI * 2;  // Add the hue shift
+        
+        float chroma = length(oklab.yz);
+        oklab.y = cos(hue) * chroma;
+        oklab.z = sin(hue) * chroma;
+        
+        return oklab_to_linear_srgb(oklab);
+    }
+
+    inline float3 poiSatShift(float3 color, float shift)
+    {
+        return lerp(color, dot(color, float3(0.3, 0.59, 0.11)), - shift);
+    }
+    
+    inline float3 poiBriShift(float3 color, float shift)
+    {
+        return saturate(color * (shift + 1));
+    }
+    
+    inline float3 simpleBriShift(float3 color, float shift)
+    {
+        return saturate(color + shift);
+    }
+
+    void ColorAdjFrag(MeshData d, inout SurfaceData o)
+    {
+        // Select UV channel
+        half2 uv;
+        switch(_ColorAdjMaskUVChannel)
+        {
+            case 1: uv = d.uv1.xy; break;
+            case 2: uv = d.uv2.xy; break;
+            case 3: uv = d.uv3.xy; break;
+            default: uv = d.uv0.xy; break;
+        }
+        uv *= _MainTex_ST.xy + _MainTex_ST.zw;
+
+        // Sample mask texture
+        half4 mask = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, uv);
+        float3 adjusted;
+
+        half maskValue = _ColorAdjMaskChannel > 0 ? mask[_ColorAdjMaskChannel - 1].xxxx : 1;
+
+        // Color adjust Albedo
+        adjusted = poiHueShift(o.Albedo, _ColorAdjAlbedoH);
+        adjusted = poiSatShift(adjusted, _ColorAdjAlbedoS);
+        adjusted = poiBriShift(adjusted, _ColorAdjAlbedoB);
+        o.Albedo = lerp(o.Albedo, adjusted, maskValue);
+
+        // Color adjust Emission
+        #if defined(_EMISSION)
+        adjusted = poiHueShift(o.Emission, _ColorAdjEmissionH);
+        adjusted = poiSatShift(adjusted, _ColorAdjEmissionS);
+        adjusted = poiBriShift(adjusted, _ColorAdjEmissionB);
+        o.Emission = adjusted;
+        #endif
+    }
+}
