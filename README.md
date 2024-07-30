@@ -52,6 +52,10 @@ This module allows you to supply a mask texture and 4 colors, where each channel
 
 This module provides Hue, Saturation, and Brightness sliders to adjust both the Albedo colors and Emission colors (if enabled). It shares the same mask texture and sampler with ORL Standard. It also allows you to select a channel of the mask texture to use to mask the effect. Color adjustment algorithms from [Poiyomi Toon Shader](https://github.com/poiyomi/PoiyomiToonShader).
 
+### AO UV Channel Select
+
+This module provides an extra dropdown to select which UV channel of the main mask map you'd like to sample for AO. This is useful if your AO map has been baked to a secondary UV set, but you'd still like to take advantage of packing it with the rest of the standard mask maps. It shares the same mask texture and sampler with ORL Standard. 
+
 ## How to Install
 
 ### Dependencies

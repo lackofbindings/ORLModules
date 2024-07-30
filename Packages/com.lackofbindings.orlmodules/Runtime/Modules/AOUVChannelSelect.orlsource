@@ -1,0 +1,36 @@
+%Properties()
+{
+    UI_AOUVHeader("# Extra AO Settings", Int) = 1
+    [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)] _AOUVChannel("AO UV Channel %ShowIf(_MaskMap)", Int) =  0
+}
+
+%Variables()
+{
+    half2 _AOUV;
+    int _AOUVChannel;
+}
+
+%Textures()
+{
+    TEXTURE2D(_MaskMap);
+    SAMPLER(sampler_MaskMap);
+}
+
+%Fragment("AOUVFragment")
+{
+    void AOUVFragment(MeshData d, inout SurfaceData o) {
+        half2 uv = d.uv0.xy;
+        switch(_AOUVChannel)
+        {
+            case 1: uv = d.uv1.xy; break;
+            case 2: uv = d.uv2.xy; break;
+            case 3: uv = d.uv3.xy; break;
+            default: uv = d.uv0.xy; break;
+        }
+        _AOUV = uv * _MainTex_ST.xy + _MainTex_ST.zw;
+        
+        half4 masks = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, _AOUV);
+        half occlusion = masks[_AOChannel];
+        o.Occlusion = lerp(1, occlusion, _OcclusionStrength);
+    }
+}
