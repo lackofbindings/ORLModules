@@ -7,10 +7,10 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ORL Standard AudiolinkPathing
+  m_Name: ORL Standard AudiolinkPathingThemed
   m_Shader: {fileID: -8512187303908658807, guid: dbf50430a3f9cfb4f885ce64cd44f239,
     type: 3}
-  m_ShaderKeywords: BAKERY_NONE BAKERY_SHNONLINEAR DETAILS_MODE_PACKED GSAA
+  m_ShaderKeywords: BAKERY_NONE BAKERY_SHNONLINEAR DETAILS_MODE_PACKED GSAA _ALPATHINGMODE_SCSS
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -234,10 +234,10 @@ Material:
     - _alModeB: 0
     - _alModeG: 0
     - _alModeR: 0
-    - _alThemeA: 0
-    - _alThemeB: 0
-    - _alThemeG: 0
-    - _alThemeR: 0
+    - _alThemeA: 4
+    - _alThemeB: 3
+    - _alThemeG: 2
+    - _alThemeR: 1
     - _alTimeRangeA: 1
     - _alTimeRangeB: 1
     - _alTimeRangeG: 1
@@ -248,7 +248,7 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _MetallicRemap: {r: 0, g: 1, b: 0, a: 1}
     - _SmoothnessRemap: {r: 0, g: 1, b: 0, a: 1}
-    - _alColorA: {r: 0.33299997, g: 0.33299997, b: 0.33299997, a: 0}
-    - _alColorB: {r: 0.32999998, g: 0, b: 1, a: 0}
-    - _alColorG: {r: 0, g: 1, b: 0.33299997, a: 0}
-    - _alColorR: {r: 1, g: 0.33299997, b: 0, a: 0}
+    - _alColorA: {r: 1, g: 1, b: 1, a: 0}
+    - _alColorB: {r: 1, g: 1, b: 1, a: 0}
+    - _alColorG: {r: 1, g: 1, b: 1, a: 0}
+    - _alColorR: {r: 1, g: 1, b: 1, a: 0}

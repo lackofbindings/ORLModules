@@ -49,6 +49,10 @@
     _alColorG("G Channel Tint", Color) = (0, 1, 0.333, 0)
     _alColorB("B Channel Tint", Color)  = (0.33, 0, 1, 0)
     _alColorA("A Channel Tint %ShowIf(!_ALPATHINGMODE_FURALITY_PACKED)", Color) = (0.333, 0.333, 0.333, 0)
+    [Enum(None, 0, AL Theme Color 1, 1, AL Theme Color 2, 2, AL Theme Color 3, 3, AL Theme Color 4, 4)] _alThemeR("R Theme Color", Int) =  0
+    [Enum(None, 0, AL Theme Color 1, 1, AL Theme Color 2, 2, AL Theme Color 3, 3, AL Theme Color 4, 4)] _alThemeG("G Theme Color", Int) =  0
+    [Enum(None, 0, AL Theme Color 1, 1, AL Theme Color 2, 2, AL Theme Color 3, 3, AL Theme Color 4, 4)] _alThemeB("B Theme Color", Int) =  0
+    [Enum(None, 0, AL Theme Color 1, 1, AL Theme Color 2, 2, AL Theme Color 3, 3, AL Theme Color 4, 4)] _alThemeA("A Theme Color %ShowIf(!_ALPATHINGMODE_FURALITY_PACKED)", Int) =  0
     [Enum(Disabled, 0, Bass, 1, Low Mid, 2, High Mid, 3, Treble, 4)]_alBandR("R Channel Band", Int) = 1
     [Enum(Disabled, 0, Bass, 1, Low Mid, 2, High Mid, 3, Treble, 4)]_alBandG("G Channel Band", Int) = 2
     [Enum(Disabled, 0, Bass, 1, Low Mid, 2, High Mid, 3, Treble, 4)]_alBandB("B Channel Band", Int) = 3
@@ -105,6 +109,11 @@
     uniform half4 _alColorB;
     uniform half4 _alColorA;
 
+    uniform float _alThemeR;
+    uniform float _alThemeG;
+    uniform float _alThemeB;
+    uniform float _alThemeA;
+
     uniform float _alTimeRangeR;
     uniform float _alTimeRangeG;
     uniform float _alTimeRangeB;
@@ -120,6 +129,8 @@
     uniform float _AudiolinkSweepMapUVSec;
 
     uniform float _AudiolinkSweepMapReverse;
+
+    uniform float3 _AlThemeColors[5];
 }
 
 %Textures()
@@ -255,12 +266,20 @@
         const float epsilon = (1.0/255.0);
         weights = saturate(weights-epsilon);
 
+        // Prepare AL theme colors
+        const bool alPresent = AudioLinkIsAvailable();
+        _AlThemeColors[0] = 1;
+        _AlThemeColors[1] = alPresent? AudioLinkData(ALPASS_THEME_COLOR0) : 1;
+        _AlThemeColors[2] = alPresent? AudioLinkData(ALPASS_THEME_COLOR1) : 1;
+        _AlThemeColors[3] = alPresent? AudioLinkData(ALPASS_THEME_COLOR2) : 1;
+        _AlThemeColors[4] = alPresent? AudioLinkData(ALPASS_THEME_COLOR3) : 1;
+
         // Sample the texture (SCSS/Poiyomi-style).
         // mask: {RGB: Color Tint, A: Mask}, weights: {RGBA: AL Channel 1-4 * Direction}
-        col.rgb += (_alBandR >= 1) ? audioLinkGetLayer(weights.r, _alTimeRangeR, _alBandR, _alModeR) * _alColorR : 0;
-        col.rgb += (_alBandG >= 1) ? audioLinkGetLayer(weights.g, _alTimeRangeG, _alBandG, _alModeG) * _alColorG : 0;
-        col.rgb += (_alBandB >= 1) ? audioLinkGetLayer(weights.b, _alTimeRangeB, _alBandB, _alModeB) * _alColorB : 0;
-        col.rgb += (_alBandA >= 1) ? audioLinkGetLayer(weights.a, _alTimeRangeA, _alBandA, _alModeA) * _alColorA : 0;
+        col.rgb += (_alBandR >= 1) ? audioLinkGetLayer(weights.r, _alTimeRangeR, _alBandR, _alModeR) * _alColorR * _AlThemeColors[_alThemeR] : 0;
+        col.rgb += (_alBandG >= 1) ? audioLinkGetLayer(weights.g, _alTimeRangeG, _alBandG, _alModeG) * _alColorG * _AlThemeColors[_alThemeG] : 0;
+        col.rgb += (_alBandB >= 1) ? audioLinkGetLayer(weights.b, _alTimeRangeB, _alBandB, _alModeB) * _alColorB * _AlThemeColors[_alThemeB] : 0;
+        col.rgb += (_alBandA >= 1) ? audioLinkGetLayer(weights.a, _alTimeRangeA, _alBandA, _alModeA) * _alColorA * _AlThemeColors[_alThemeA] : 0;
         col.a = 1.0;
         col.rgb *= mask * _AudiolinkIntensity;
 
