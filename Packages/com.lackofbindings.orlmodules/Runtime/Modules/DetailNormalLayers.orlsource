@@ -1,0 +1,143 @@
+%Properties()
+{
+    UI_DetailNormHeader("# Detail Normal Layers", Int) = 0
+
+    [KeywordEnum(Disabled, One, Two, Three, Four)] _DetailNormalLayers ("Number of Layers", Int) = 0
+
+    [ToggleUI]_DIgnoreMask("Ignore Main Mask %ShowIf(DETAILS_OVERLAY)", Int) = 0
+    [NoScaleOffset]_DetailNormalMask("Detail Mask > %ShowIf(_DetailNormalLayers > 0)", 2D) = "white" { }
+    [Enum(UV1, 0, UV2, 1, UV3, 2, UV4, 3)]_DetailNormalUVChannel("UV Set %ShowIf(_DetailNormalLayers > 0)", Int) = 0
+    UI_DetailsMaskNote("> RGBA: Mask Layers 1-4. Uncheck sRGB! %ShowIf(_DetailNormalLayers > 0)", Int) = 0
+
+    [Normal]_DetailNormalL1Map("Normal Map Layer 1 %ShowIf(_DetailNormalLayers > 0)", 2D) = "bump" { }
+    _DetailNormalL1Scale("Normal Scale %ShowIf(_DetailNormalLayers > 0 && _DetailNormalL1Map)", Range(0.0, 2.0)) = 1
+
+    [Normal]_DetailNormalL2Map("Normal Map Layer 2 %ShowIf(_DetailNormalLayers > 1)", 2D) = "bump" { }
+    _DetailNormalL2Scale("Normal Scale %ShowIf(_DetailNormalLayers > 1 && _DetailNormalL2Map)", Range(0.0, 2.0)) = 1
+
+    [Normal]_DetailNormalL3Map("Normal Map Layer 3 %ShowIf(_DetailNormalLayers > 2)", 2D) = "bump" { }
+    _DetailNormalL3Scale("Normal Scale %ShowIf(_DetailNormalLayers > 2 && _DetailNormalL3Map)", Range(0.0, 2.0)) = 1
+
+    [Normal]_DetailNormalL4Map("Normal Map Layer 4 %ShowIf(_DetailNormalLayers > 3)", 2D) = "bump" { }
+    _DetailNormalL4Scale("Normal Scale %ShowIf(_DetailNormalLayers > 3 && _DetailNormalL4Map)", Range(0.0, 2.0)) = 1
+}
+
+%ShaderFeatures()
+{
+    #pragma shader_feature_local _DETAILNORMALLAYERS_DISABLED _DETAILNORMALLAYERS_ONE _DETAILNORMALLAYERS_TWO _DETAILNORMALLAYERS_THREE _DETAILNORMALLAYERS_FOUR
+}
+
+%ShaderDefines()
+{
+    #if defined(_DETAILNORMALLAYERS_ONE) || defined(_DETAILNORMALLAYERS_TWO) || defined(_DETAILNORMALLAYERS_THREE) || defined(_DETAILNORMALLAYERS_FOUR)
+        #define  _DETAILNORMALLAYER_ONE_ON
+    #endif
+    #if defined(_DETAILNORMALLAYERS_TWO) || defined(_DETAILNORMALLAYERS_THREE) || defined(_DETAILNORMALLAYERS_FOUR)
+        #define  _DETAILNORMALLAYER_TWO_ON
+    #endif
+    #if defined(_DETAILNORMALLAYERS_THREE) || defined(_DETAILNORMALLAYERS_FOUR)
+        #define  _DETAILNORMALLAYER_THREE_ON
+    #endif
+    #if defined(_DETAILNORMALLAYERS_FOUR)
+        #define  _DETAILNORMALLAYER_FOUR_ON
+    #endif
+
+    #if !defined(UnpackNormalScale)
+        #define UnpackNormalScale UnpackScaleNormal
+    #endif
+}
+
+%Variables()
+{
+    int _DIgnoreMask;
+
+    // half4 _DetailNormalMask_ST;
+    int _DetailNormalUVChannel;
+
+    half4 _DetailNormalL1Map_ST;
+    half4 _DetailNormalL2Map_ST;
+    half4 _DetailNormalL3Map_ST;
+    half4 _DetailNormalL4Map_ST;
+
+    half _DetailNormalL1Scale;
+    half _DetailNormalL2Scale;
+    half _DetailNormalL3Scale;
+    half _DetailNormalL4Scale;
+}
+
+%Textures()
+{
+    TEXTURE2D(_DetailNormalMask);
+    SAMPLER(sampler_DetailNormalMask);
+
+    TEXTURE2D(_DetailNormalL1Map);
+    TEXTURE2D(_DetailNormalL2Map);
+    TEXTURE2D(_DetailNormalL3Map);
+    TEXTURE2D(_DetailNormalL4Map);
+    SAMPLER(sampler_DetailNormalL1Map);
+}
+
+%Fragment("DetailNormalLayersFragment")
+{
+    void DetailNormalLayersFragment(MeshData d, inout SurfaceData o)
+    {
+        #if defined(_DETAILNORMALLAYERS_DISABLED)
+            return;
+        #else
+        half masks = 0;
+
+        // we can grab the mask map from the Base Shader if it is present
+        #if defined(_MASKMAP_SAMPLED)
+        masks = GLOBAL_maskMap.b;
+        #else
+        masks = 1;
+        #endif
+
+        half mask = lerp(masks, 1, _DIgnoreMask);
+
+        // uv selection
+        float2 uv = d.uv0.xy;
+        switch(_DUVChannel)
+        {
+            case 1: uv = d.uv1.xy; break;
+            case 2: uv = d.uv2.xy; break;
+            case 3: uv = d.uv3.xy; break;
+            default: uv = d.uv0.xy; break;
+        }
+
+        // prepare the mask
+        half4 detailsMask = SAMPLE_TEXTURE2D(_DetailNormalMask, sampler_DetailNormalMask, uv);
+
+        // prepare the normals
+
+        // Layer 1
+        #if defined(_DETAILNORMALLAYER_ONE_ON)
+        half4 packedNormalL1 = SAMPLE_TEXTURE2D(_DetailNormalL1Map, sampler_DetailNormalL1Map, uv * _DetailNormalL1Map_ST.xy + _DetailNormalL1Map_ST.zw);
+        half3 normalL1 = UnpackNormalScale(packedNormalL1, _DetailNormalL1Scale);
+        o.Normal = lerp(o.Normal, BlendNormals(o.Normal, normalL1), mask * detailsMask.r);
+        #endif
+
+        // Layer 2
+        #if defined(_DETAILNORMALLAYER_TWO_ON)
+        half4 packedNormalL2 = SAMPLE_TEXTURE2D(_DetailNormalL2Map, sampler_DetailNormalL1Map, uv * _DetailNormalL2Map_ST.xy + _DetailNormalL2Map_ST.zw);
+        half3 normalL2 = UnpackNormalScale(packedNormalL2, _DetailNormalL2Scale);
+        o.Normal = lerp(o.Normal, BlendNormals(o.Normal, normalL2), mask * detailsMask.g);
+        #endif
+
+        // Layer 3
+        #if defined(_DETAILNORMALLAYER_THREE_ON)
+        half4 packedNormalL3 = SAMPLE_TEXTURE2D(_DetailNormalL3Map, sampler_DetailNormalL1Map, uv * _DetailNormalL3Map_ST.xy + _DetailNormalL3Map_ST.zw);
+        half3 normalL3 = UnpackNormalScale(packedNormalL3, _DetailNormalL3Scale);
+        o.Normal = lerp(o.Normal, BlendNormals(o.Normal, normalL3), mask * detailsMask.b);
+        #endif
+
+        // Layer 4
+        #if defined(_DETAILNORMALLAYER_FOUR_ON)
+        half4 packedNormalL4 = SAMPLE_TEXTURE2D(_DetailNormalL4Map, sampler_DetailNormalL1Map, uv * _DetailNormalL4Map_ST.xy + _DetailNormalL4Map_ST.zw);
+        half3 normalL4 = UnpackNormalScale(packedNormalL4, _DetailNormalL4Scale);
+        o.Normal = lerp(o.Normal, BlendNormals(o.Normal, normalL4), mask * detailsMask.a);
+        #endif
+
+        #endif
+    }
+}
