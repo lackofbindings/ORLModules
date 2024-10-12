@@ -96,8 +96,13 @@ Material:
     m_Floats:
     - BAKERY: 0
     - DETAILS_MODE: 0
+    - MOBILE_TONEMAP: 0
     - UI_AdvancedSettingsHeader: 1
+    - UI_AdvancedSettingsStancilHeader: 1
+    - UI_ApplyColorCorrectionNote: 0
+    - UI_BakedSpecularOcclusionNote: 0
     - UI_BakeryHeader: 0
+    - UI_DAlbedoMixingLegacyNote: 0
     - UI_DetailAlbedoNote: 0
     - UI_DetailSmoothNote: 0
     - UI_DetailsDocs: 0
@@ -108,15 +113,21 @@ Material:
     - UI_Emission2Header: 1
     - UI_Emission2Note: 0
     - UI_Emission2ndHeader: 1
+    - UI_GITweaksHeader: 0
     - UI_GSAAHeader: 0
     - UI_GSAANote: 0
     - UI_IgnoreMaskNote: 0
+    - UI_IgnoreRealtimeGINote: 0
     - UI_InternalHeader: 0
     - UI_LightmappingDocs: 0
     - UI_LightmappingHeader: 1
     - UI_MainHeader: 1
+    - UI_MobileTweaks: 1
     - UI_ParallaxDocs: 0
     - UI_ParallaxHeader: 0
+    - UI_RealtimeShadowSpecularOcclusionNote: 0
+    - UI_ShadeVertexLightsNote: 0
+    - UI_SpecOcclusionNote: 0
     - UI_VRCDocs: 0
     - UI_VRCFeaturesHeader: 0
     - UI_VRCHideCameraHeader: 0
@@ -124,13 +135,19 @@ Material:
     - UI_VRCHideMainViewHeader: 0
     - _AOChannel: 1
     - _AlbedoChannel: 0
+    - _ApplyColorCorrection: 0
     - _BakedSpecular: 0
+    - _BakedSpecularOcclusion: 0.75
     - _BakeryEnabled: 0
     - _BakerySHNonLinear: 1
     - _Bicubic: 0
     - _BumpScale: 1
+    - _ColorCorrGain: 1.4
+    - _ColorCorrGamma: 1.1
+    - _ColorCorrLift: 1
     - _CullMode: 2
     - _Cutoff: 0.5
+    - _DAlbedoMixingLegacy: 0
     - _DAlbedoScale: 1
     - _DIgnoreMask: 0
     - _DMappingSpace: 0
@@ -145,7 +162,7 @@ Material:
     - _DetailNormalMapScale: 1
     - _DetailsOverlay: 0
     - _DstBlend: 0
-    - _Emission2Channel: 0
+    - _Emission2Channel: 1
     - _Emission2Enabled: 1
     - _Emission2UVChannel: 0
     - _EmissionChannel: 0
@@ -154,6 +171,7 @@ Material:
     - _EnableParallax: 0
     - _FlipBumpY: 0
     - _ForceBoxProjection: 0
+    - _GIEmissiveBoost: 1
     - _GSAAThreshold: 0.1
     - _GSAAVariance: 0.05
     - _GlossMapScale: 1
@@ -163,6 +181,7 @@ Material:
     - _HeightScale: 0.006
     - _HeightStepsMax: 16
     - _HeightStepsMin: 8
+    - _IgnoreRealtimeGI: 0
     - _MappingSpace: 0
     - _MetalChannel: 0
     - _Metallic: 0
@@ -172,7 +191,9 @@ Material:
     - _Parallax: 0.02
     - _PlanarAxisX: 0
     - _PlanarAxisY: 2
+    - _RealtimeShadowSpecOcclusion: 0
     - _RoughnessMode: 0
+    - _ShadeVertexLights: 0
     - _SmoothChannel: 3
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
@@ -180,6 +201,11 @@ Material:
     - _SpecularHighlights: 1
     - _SpecularRoughnessMod: 1
     - _SrcBlend: 1
+    - _StencilComp: 8
+    - _StencilFailOp: 0
+    - _StencilPassOp: 0
+    - _StencilRef: 0
+    - _StencilZFailOp: 0
     - _UVSec: 0
     - _VRCFallbackTag: 0
     - _VRCFeaturesEnabled: 0

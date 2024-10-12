@@ -8,7 +8,7 @@
     // [Toggle(_EMISSION2)] _Emission2Enabled("2nd Emission", Int) =  0
     _Emission2Map("Emission Map > %ShowIf(_EMISSION)", 2D) =  "white" { }
     [HDR]_Emission2Color("Emission Color %ShowIf(_EMISSION)", Color) =  (0, 0, 0, 1)
-    [Enum(RGB, 0, R, 1, G, 2, B, 3)][_Emission2Map] _Emission2Channel("Emission Channel %ShowIf(_Emission2Map)", Int) =  0
+    [Enum(RGB, 0, R, 1, G, 2, B, 3, A, 4)][_Emission2Map] _Emission2Channel("Emission Channel %ShowIf(_Emission2Map)", Int) =  0
     [Enum(UV1, 0, UV2, 1, UV3, 2, UV4, 3)]_Emission2UVChannel("UV Set %ShowIf(_Emission2Map)", Int) = 0
 }
 
@@ -45,10 +45,10 @@
         uv *= _MainTex_ST.xy + _MainTex_ST.zw;
         
         // RGB channel selection
-        half3 emission2 = SAMPLE_TEXTURE2D(_Emission2Map, sampler_EmissionMap, uv).rgb;
+        half4 emission2 = SAMPLE_TEXTURE2D(_Emission2Map, sampler_EmissionMap, uv).rgba;
         if (_Emission2Channel > 0)
         {
-            emission2.rgb = emission2[_Emission2Channel - 1].xxx;
+            emission2.rgb = emission2[_Emission2Channel - 1].xxxx;
         }
 
         // Add emission to base emission
