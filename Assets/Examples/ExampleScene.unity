@@ -953,7 +953,7 @@ GameObject:
   - component: {fileID: 1177824907}
   - component: {fileID: 1177824906}
   m_Layer: 0
-  m_Name: ORL Standard GradientMap (1)
+  m_Name: ORL Standard RGBA Color Mask
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
