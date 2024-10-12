@@ -1,6 +1,7 @@
 %Properties()
 {
     UI_StencilSettingsHeader("# Stencil Settings", Float) = 0
+    UI_StencilDeprecationNote("> This module is deprecated in ORL 6.4.0+! Please use ORL Standard or the built-in Stencil Feature Template instead!", Int) = 0
     [IntRange]_StencilRef("Stencil Test", Range(1,255)) = 0
     [Enum(UnityEngine.Rendering.CompareFunction)]_StencilCompare("Compare", Float) = 8
     [Enum(UnityEngine.Rendering.StencilOp)]_StencilPass("Pass", Float) = 0

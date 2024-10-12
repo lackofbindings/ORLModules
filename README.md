@@ -6,6 +6,8 @@ This VPM provides custom modules for the [ORL shader suite](https://shaders.orel
 
 ### Stencil Options
 
+> ⚠️ Deprecated with ORL 6.4.0+, stencil options are now included by default.
+
 This Module provides the standard stencil masking options (stencil mask value, pass/fail/comparison, etc.)
 
 ### AudioLink Pathing
@@ -55,6 +57,10 @@ This module provides Hue, Saturation, and Brightness sliders to adjust both the 
 ### AO UV Channel Select
 
 This module provides an extra dropdown to select which UV channel of the main mask map you'd like to sample for AO. This is useful if your AO map has been baked to a secondary UV set, but you'd still like to take advantage of packing it with the rest of the standard mask maps. It shares the same mask texture and sampler with ORL Standard. 
+
+### Detail Normal Layers
+
+This module adds 4 detail normal texture slots. Each texture slot has individual controls for tiling, offset and strength. It features one mask texture slot where each of the 4 RGBA channels corresponds to one of the normal texture layers, similar to the [RGBA Color Mask Module](#rgba-color-mask). Based on the code from the official Details module.
 
 ## How to Install
 
