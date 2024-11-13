@@ -28,6 +28,7 @@
 {
     UI_AlPathingHeader("# AudioLink Pathing", Float) = 0
     _AudiolinkIntensity("AudioLink Emission Intensity", Float) = 1.0
+    _alOverrideEmission("Override Base Emission", Range(0, 1)) = 0
     
     UI_AlPathingMapsHeader("## Maps", Float) = 0
     [KeywordEnum(SCSS, Furality, Furality Packed)]_ALPathingMode("AudioLink Pathing Mode", Float) = 0
@@ -131,6 +132,8 @@
     uniform float _AudiolinkSweepMapReverse;
 
     uniform float3 _AlThemeColors[5];
+
+    uniform float _alOverrideEmission;
 }
 
 %Textures()
@@ -313,7 +316,7 @@
     void ALPathingFrag(MeshData d, inout SurfaceData o)
     {   
         float4 audiolinkUV = EmissiveAudioLinkTexCoords(d.extraV2F0, d.extraV2F1);
-        o.Emission += EmissiveAudioLink(audiolinkUV.xy, audiolinkUV.zw);
+        o.Emission = (o.Emission *  (1 - _alOverrideEmission)) + EmissiveAudioLink(audiolinkUV.xy, audiolinkUV.zw);
     }
 }
 
