@@ -2,7 +2,7 @@
   "name": "com.lackofbindings.orlmodules",
   "displayName": "Lackofbindings' ORL Modules",
   "description": "Custom modules for the ORL shader suite",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "unity": "2019.4",
   "author": {
     "name": "lackofbindings",
@@ -11,8 +11,8 @@
   "license": "MIT",
   "gitDependencies": {},
   "vpmDependencies": {
-    "sh.orels.shaders": "^6.3.0",
-    "sh.orels.shaders.generator": "^6.3.0",
-    "sh.orels.shaders.inspector": "^6.3.0"
+    "sh.orels.shaders": "^6.3.0 || ^7.0.0",
+    "sh.orels.shaders.generator": "^6.3.0 || ^7.0.0",
+    "sh.orels.shaders.inspector": "^6.3.0 || ^7.0.0"
   }
 }
