@@ -1,0 +1,85 @@
+%Properties()
+{
+    UI_DetailNormHeader("# Detail Metallic", Int) = 0
+
+    [Toggle(_DETAIL_METALLIC)]_DetailMetallicOn("Enable Detail Metallic", Int) = 0
+    [Space(5)]
+    [ToggleUI]_DMIgnoreMask("Ignore Main Mask %ShowIf(DETAILS_OVERLAY && _DetailMetallicOn)", Int) = 0
+
+    [Enum(UV1, 0, UV2, 1, UV3, 2, UV4, 3)]_DetailMetallicUVChannel("UV Set %ShowIf(_DetailMetallicOn)", Int) = 0
+    [Space(5)]
+
+    _DetailMetallicMap("Metallic Detail Map %ShowIf(_DetailMetallicOn)", 2D) = "black" {}
+    [Enum(R, 0, G, 1, B, 2, A, 3)][_DetailMetallicMap] _DetailMetallicChannel("Metallic Detail Channel %ShowIf(_DetailMetallicOn && _DetailMetallicMap)", Int) =  0
+    _DetailMetallicScale("Metallic Detail Scale %ShowIf(_DetailMetallicOn && _DetailMetallicMap)", Range(-2.0, 2.0)) = 0
+    [Enum(R, 0, G, 1, B, 2, A, 3)][_DetailMetallicMap] _DetailSmoothnessChannel("Smoothness Detail Channel %ShowIf(_DetailMetallicOn && _DetailMetallicMap)", Int) =  1
+    _DetailSmoothnessScale("Smoothness Detail Scale %ShowIf(_DetailMetallicOn && _DetailMetallicMap)", Range(-2.0, 2.0)) = 0
+
+}
+
+%ShaderFeatures()
+{
+    #pragma shader_feature_local _ _DETAIL_METALLIC
+}
+
+%Variables()
+{
+    int _DMIgnoreMask;
+
+    int _DetailMetallicUVChannel;
+
+    int _DetailSmoothnessChannel;
+    int _DetailMetallicChannel;
+
+    half4 _DetailMetallicMap_ST;
+
+    half _DetailMetallicScale;
+    half _DetailSmoothnessScale;
+}
+
+%Textures()
+{
+    TEXTURE2D(_DetailMetallicMap);
+    SAMPLER(sampler_DetailMetallicMap);
+}
+
+%Fragment("DetailMetallicLayersFragment")
+{
+    void DetailMetallicLayersFragment(MeshData d, inout SurfaceData o)
+    {
+        #if !defined(_DETAIL_METALLIC)
+            return;
+        #else
+        half masks = 0;
+
+        // we can grab the mask map from the Base Shader if it is present
+        #if defined(_MASKMAP_SAMPLED)
+        masks = GLOBAL_maskMap.b;
+        #else
+        masks = 1;
+        #endif
+
+        half mask = lerp(masks, 1, _DMIgnoreMask);
+
+        // uv selection
+        float2 uv = d.uv0.xy;
+        switch(_DetailMetallicUVChannel)
+        {
+            case 1: uv = d.uv1.xy; break;
+            case 2: uv = d.uv2.xy; break;
+            case 3: uv = d.uv3.xy; break;
+            default: uv = d.uv0.xy; break;
+        }
+
+        // Metallic
+        half4 col = SAMPLE_TEXTURE2D(_DetailMetallicMap, sampler_DetailMetallicMap, uv * _DetailMetallicMap_ST.xy + _DetailMetallicMap_ST.zw);
+
+        half metallicDetail = col[_DetailMetallicChannel].xxxx;
+        half smoothDetail = col[_DetailSmoothnessChannel].xxxx;
+
+        o.Metallic = saturate(o.Metallic + lerp(0, metallicDetail * _DetailMetallicScale, mask));
+        o.Smoothness = saturate(o.Smoothness + lerp(0, smoothDetail * _DetailSmoothnessScale, mask));
+
+        #endif
+    }
+}

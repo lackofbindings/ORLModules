@@ -62,6 +62,10 @@ This module provides an extra dropdown to select which UV channel of the main ma
 
 This module adds 4 detail normal texture slots. Each texture slot has individual controls for tiling, offset and strength. It features one mask texture slot where each of the 4 RGBA channels corresponds to one of the normal texture layers, similar to the [RGBA Color Mask Module](#rgba-color-mask). Based on the code from the official Details module.
 
+### Detail Metallic
+
+This module adds an input for a packed texture containing metallic and smoothness detail maps. Each layer is added to the corresponding base metallic/smoothness values, with a slider to control the strength of each (or invert it). This is useful for adding tiled detail to your PBR surfaces.
+
 ## How to Install
 
 ### Dependencies
