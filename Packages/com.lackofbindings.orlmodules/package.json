@@ -11,7 +11,7 @@
   "license": "MIT",
   "gitDependencies": {},
   "vpmDependencies": {
-    "sh.orels.shaders": "^6.3.0 || ^7.0.0",
+    "sh.orels.shaders": "^6.3.0 || ^7.0.0-dev.1",
     "sh.orels.shaders.generator": "^6.3.0 || ^7.0.0",
     "sh.orels.shaders.inspector": "^6.3.0 || ^7.0.0"
   }
