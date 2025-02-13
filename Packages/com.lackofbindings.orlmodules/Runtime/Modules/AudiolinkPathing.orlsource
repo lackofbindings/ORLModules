@@ -251,8 +251,8 @@
         #ifdef _ALPATHINGMODE_FURALITY
         weights = mask * LinearToGammaSpaceExact(weights.r);
         
-        mask.rgb = saturate(mask.r + mask.g + mask.b + ((_alBandA >= 1) ? mask.a : 0) );
-        mask.a = mask.rgb;
+        mask.rgb = saturate(mask.r + mask.g + mask.b + ((_alBandA > 0) ? mask.a : 0) );
+        mask.a = 1.0;
         #endif
 
         // Convert packed-furality-style masks to scss/poiyomi-style.
@@ -262,7 +262,7 @@
         weights.a = 0.5;
         
         mask.rgb = saturate(mask.r + mask.g + mask.b);
-        mask.a = 0;
+        mask.a = 1.0;
         #endif
         
         // Apply a small epsilon to the weights to avoid artifacts.
@@ -286,7 +286,7 @@
         col.rgb += (_alBandA >= 1) ? audioLinkGetLayer(weights.a, _alTimeRangeA, _alBandA, _alModeA) * _alColorA * _AlThemeColors[_alThemeA] : 0;
         #endif
         col.a = 1.0;
-        col.rgb *= mask * _AudiolinkIntensity;
+        col.rgb *= mask.rgb * mask.a * _AudiolinkIntensity;
 
         return col;
     }
