@@ -282,7 +282,9 @@
         col.rgb += (_alBandR >= 1) ? audioLinkGetLayer(weights.r, _alTimeRangeR, _alBandR, _alModeR) * _alColorR * _AlThemeColors[_alThemeR] : 0;
         col.rgb += (_alBandG >= 1) ? audioLinkGetLayer(weights.g, _alTimeRangeG, _alBandG, _alModeG) * _alColorG * _AlThemeColors[_alThemeG] : 0;
         col.rgb += (_alBandB >= 1) ? audioLinkGetLayer(weights.b, _alTimeRangeB, _alBandB, _alModeB) * _alColorB * _AlThemeColors[_alThemeB] : 0;
+        #if !defined(_ALPATHINGMODE_FURALITY_PACKED)
         col.rgb += (_alBandA >= 1) ? audioLinkGetLayer(weights.a, _alTimeRangeA, _alBandA, _alModeA) * _alColorA * _AlThemeColors[_alThemeA] : 0;
+        #endif
         col.a = 1.0;
         col.rgb *= mask * _AudiolinkIntensity;
 
