@@ -54,6 +54,7 @@
     [Enum(None, 0, AL Theme Color 1, 1, AL Theme Color 2, 2, AL Theme Color 3, 3, AL Theme Color 4, 4)] _alThemeG("G Theme Color", Int) =  0
     [Enum(None, 0, AL Theme Color 1, 1, AL Theme Color 2, 2, AL Theme Color 3, 3, AL Theme Color 4, 4)] _alThemeB("B Theme Color", Int) =  0
     [Enum(None, 0, AL Theme Color 1, 1, AL Theme Color 2, 2, AL Theme Color 3, 3, AL Theme Color 4, 4)] _alThemeA("A Theme Color %ShowIf(!_ALPATHINGMODE_FURALITY_PACKED)", Int) =  0
+    [Toggle(_ALPATHING_THEME_OVERRIDES_BASE)]_alThemeOverridesBase("Theme Colors Override Base Colors", Int) = 0
     [Enum(Disabled, 0, Bass, 1, Low Mid, 2, High Mid, 3, Treble, 4)]_alBandR("R Channel Band", Int) = 1
     [Enum(Disabled, 0, Bass, 1, Low Mid, 2, High Mid, 3, Treble, 4)]_alBandG("G Channel Band", Int) = 2
     [Enum(Disabled, 0, Bass, 1, Low Mid, 2, High Mid, 3, Treble, 4)]_alBandB("B Channel Band", Int) = 3
@@ -81,6 +82,7 @@
 {
     #pragma shader_feature_local _ _AUDIOLINK
     #pragma shader_feature_local _ALPATHINGMODE_SCSS _ALPATHINGMODE_FURALITY _ALPATHINGMODE_FURALITY_PACKED
+    #pragma shader_feature_local _ _ALPATHING_THEME_OVERRIDES_BASE
 }
 
 %ShaderDefines()
@@ -133,7 +135,7 @@
 
     uniform float3 _AlThemeColors[5];
 
-    uniform float _alOverrideEmission;
+    uniform half _alOverrideEmission;
 }
 
 %Textures()
@@ -277,16 +279,32 @@
         _AlThemeColors[3] = alPresent? AudioLinkData(ALPASS_THEME_COLOR2) : 1;
         _AlThemeColors[4] = alPresent? AudioLinkData(ALPASS_THEME_COLOR3) : 1;
 
+        #if defined(_ALPATHING_THEME_OVERRIDES_BASE)
+        // If this is enabled and if theme colors are set, convert mask tint to grayscale and ignore color swatch
+        half3 tintR = ((_alThemeR > 0)? Luminance(mask.rgb) : _alColorR * mask.rgb) * _AlThemeColors[_alThemeR];
+        half3 tintG = ((_alThemeG > 0)? Luminance(mask.rgb) : _alColorG * mask.rgb) * _AlThemeColors[_alThemeG];
+        half3 tintB = ((_alThemeB > 0)? Luminance(mask.rgb) : _alColorB * mask.rgb) * _AlThemeColors[_alThemeB];
+        half3 tintA = ((_alThemeA > 0)? Luminance(mask.rgb) : _alColorA * mask.rgb) * _AlThemeColors[_alThemeA];
+        #else
+        // Otherwise tint normally from color swatch and mask texture
+        half3 tintR = _alColorR * mask.rgb * _AlThemeColors[_alThemeR];
+        half3 tintG = _alColorG * mask.rgb * _AlThemeColors[_alThemeG];
+        half3 tintB = _alColorB * mask.rgb * _AlThemeColors[_alThemeB];
+        half3 tintA = _alColorA * mask.rgb * _AlThemeColors[_alThemeA];
+        #endif
+        
         // Sample the texture (SCSS/Poiyomi-style).
         // mask: {RGB: Color Tint, A: Mask}, weights: {RGBA: AL Channel 1-4 * Direction}
-        col.rgb += (_alBandR >= 1) ? audioLinkGetLayer(weights.r, _alTimeRangeR, _alBandR, _alModeR) * _alColorR * _AlThemeColors[_alThemeR] : 0;
-        col.rgb += (_alBandG >= 1) ? audioLinkGetLayer(weights.g, _alTimeRangeG, _alBandG, _alModeG) * _alColorG * _AlThemeColors[_alThemeG] : 0;
-        col.rgb += (_alBandB >= 1) ? audioLinkGetLayer(weights.b, _alTimeRangeB, _alBandB, _alModeB) * _alColorB * _AlThemeColors[_alThemeB] : 0;
+        col.rgb += (_alBandR >= 1) ? audioLinkGetLayer(weights.r, _alTimeRangeR, _alBandR, _alModeR) * tintR : 0;
+        col.rgb += (_alBandG >= 1) ? audioLinkGetLayer(weights.g, _alTimeRangeG, _alBandG, _alModeG) * tintG : 0;
+        col.rgb += (_alBandB >= 1) ? audioLinkGetLayer(weights.b, _alTimeRangeB, _alBandB, _alModeB) * tintB : 0;
+
         #if !defined(_ALPATHINGMODE_FURALITY_PACKED)
-        col.rgb += (_alBandA >= 1) ? audioLinkGetLayer(weights.a, _alTimeRangeA, _alBandA, _alModeA) * _alColorA * _AlThemeColors[_alThemeA] : 0;
+        col.rgb += (_alBandA >= 1) ? audioLinkGetLayer(weights.a, _alTimeRangeA, _alBandA, _alModeA) * tintA : 0;
         #endif
+
         col.a = 1.0;
-        col.rgb *= mask.rgb * mask.a * _AudiolinkIntensity;
+        col.rgb *= mask.a * _AudiolinkIntensity;
 
         return col;
     }
