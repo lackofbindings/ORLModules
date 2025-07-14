@@ -1,0 +1,30 @@
+%Properties()
+{
+    UI_LDFHeadeR("# LOD Fade Settings", Int) = 1
+    [Toggle(_LOD_DITHER_FADE)]_EnableLDitherFade("Enable", Int) = 0
+}
+
+%ShaderTags()
+{
+    "Queue" = "AlphaTest" "RenderType" = "TransparentCutout" "ORL_RenderType" = "Cutout"
+}
+
+%ShaderFeatures()
+{
+    #pragma shader_feature_local_fragment _ _LOD_DITHER_FADE
+    #pragma multi_compile _ LOD_FADE_CROSSFADE
+}
+
+%Fragment("LODDitherFrag")
+{
+    // Adapted from https://github.com/keijiro/CrossFadingLod/
+    void LODDitherFrag(MeshData d, inout SurfaceData o) {
+
+        #if defined(_LOD_DITHER_FADE) && defined(LOD_FADE_CROSSFADE)
+
+        float2 vpos = d.screenPos.xy / d.screenPos.w * _ScreenParams.xy;
+        UnityApplyDitherCrossFade(vpos);
+
+        #endif
+    }
+}
