@@ -66,6 +66,10 @@ This module adds 4 detail normal texture slots. Each texture slot has individual
 
 This module adds an input for a packed texture containing metallic and smoothness detail maps. Each layer is added to the corresponding base metallic/smoothness values, with a slider to control the strength of each (or invert it). This is useful for adding tiled detail to your PBR surfaces.
 
+### LOD Dither Fade
+
+This module enables dithered cutout cross-fading support for use with [LOD groups](https://docs.unity3d.com/2022.3/Documentation/Manual/class-LODGroup.html). The LOD group must have its Fade Mode set to `Cross Fade` and Fade Transition Width must be greater than 0. Uses the built-in UnityApplyDitherCrossFade() based on [the example created by keijiro](https://github.com/keijiro/CrossFadingLod/).
+
 ## How to Install
 
 ### Dependencies
