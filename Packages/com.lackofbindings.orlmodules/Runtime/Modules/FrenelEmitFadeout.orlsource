@@ -1,0 +1,41 @@
+%Properties()
+{
+    UI_MipFadoutHeader("# Frenel Emission Fadeout", Int) = 1
+    _FFadeoutBias("Bias", Range(-1,1)) = 0
+    _FFadeoutScale("Scale", Range(0,10)) = 1
+    _FFadeoutPower("Power", Range(0,10)) = 1
+}
+
+%Variables()
+{
+    float _FFadeoutBias;
+    float _FFadeoutScale;
+    float _FFadeoutPower;
+}
+
+// https://kylehalladay.com/blog/tutorial/2014/02/18/Fresnel-Shaders-From-The-Ground-Up.html
+%Vertex("FFadeoutVert")
+{
+    void FFadeoutVert(VertexData v, inout FragmentData o)
+    {
+        float4 pos = mul(UNITY_MATRIX_MVP, v.vertex);
+        half2 uv = v.uv0;
+    
+        float3 posWorld = mul(unity_ObjectToWorld, v.vertex).xyz;
+        float3 normWorld = normalize(mul(unity_ObjectToWorld, v.normal));
+
+
+        float3 I = normalize(posWorld - _WorldSpaceCameraPos.xyz);
+        o.extraV2F0.r = _FFadeoutBias + _FFadeoutScale * pow(1.0 + dot(I, normWorld), _FFadeoutPower);
+    }
+}
+
+%Fragment("FFadeoutFrag")
+{
+    void FFadeoutFrag(MeshData d, inout SurfaceData o, FragmentData i) {
+        #if defined(_EMISSION)
+            o.Emission *= 1 - i.extraV2F0.r;
+
+        #endif
+    }
+}
