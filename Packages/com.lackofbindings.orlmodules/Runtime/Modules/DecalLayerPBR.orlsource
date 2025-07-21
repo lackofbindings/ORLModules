@@ -1,0 +1,114 @@
+%Properties()
+{
+    UI_DecalLayerPBR_Header("# Decal Layer (PBR)", Int) = 0
+    [Toggle(_DECALLAYERPBR_ENABLE)]_DecalLayerPBR_Enable("Enable PBR Decal Layer", Int) = 0
+
+    [ToggleUI]_DecalLayerPBR_IgnoreMask("Ignore Main Mask %ShowIf(DETAILS_OVERLAY && _DECALLAYERPBR_ENABLE)", Int) = 0
+    [Enum(UV1, 0, UV2, 1, UV3, 2, UV4, 3)]_DecalLayerPBR_UVChannel("UV Set %ShowIf(_DECALLAYERPBR_ENABLE)", Int) = 0
+
+    _DecalLayerPBR_Alpha("Alpha %ShowIf(_DECALLAYERPBR_ENABLE)", Range(0.0, 1.0)) = 1
+    
+    _DecalLayerPBR_AlbedoMap("Decal Albedo %ShowIf(_DECALLAYERPBR_ENABLE)", 2D) = "white" { }
+    UI_DetailsMaskNote("> RGB: Albedo, A: Mask %ShowIf(_DECALLAYERPBR_ENABLE)", Int) = 0
+
+    _DecalLayerPBR_MetallicMap("Decal Metallic Map > %ShowIf(_DECALLAYERPBR_ENABLE)", 2D) = "white" { }
+    [Enum(R, 0, G, 1, B, 2, A, 3)]_DecalLayerPBR_MetallicChannel("Metal %ShowIf(_DecalLayerPBR_MetallicMap) %CombineWith(_DecalLayerPBR_SmoothChannel)", Int) = 0
+    [HideInInspector][Enum(R, 0, G, 1, B, 2, A, 3)]_DecalLayerPBR_SmoothChannel("Smooth", Int) = 3
+
+    [Normal]_DecalLayerPBR_NormalMap("Decal Normal Map > %ShowIf(_DECALLAYERPBR_ENABLE)", 2D) = "bump" { }
+    _DecalLayerPBR_NormalScale("Normal Scale %ShowIf(_DECALLAYERPBR_ENABLE && _DecalLayerPBR_NormalMap)", Range(0.0, 2.0)) = 1
+
+}
+
+%ShaderFeatures()
+{
+    #pragma shader_feature_local _ _DECALLAYERPBR_ENABLE
+}
+
+%ShaderDefines()
+{
+    #if !defined(UnpackNormalScale)
+        #define UnpackNormalScale UnpackScaleNormal
+    #endif
+}
+
+%Variables()
+{
+    int _DecalLayerPBR_IgnoreMask;
+
+    half4 _DecalLayerPBR_AlbedoMap_ST;
+    
+    int _DecalLayerPBR_UVChannel;
+
+    int _DecalLayerPBR_MetallicChannel;
+    int _DecalLayerPBR_SmoothChannel;
+
+    half _DecalLayerPBR_NormalScale;
+    half _DecalLayerPBR_Alpha;
+}
+
+%Textures()
+{
+    TEXTURE2D(_DecalLayerPBR_AlbedoMap);
+    SAMPLER(sampler_DecalLayerPBR_AlbedoMap);
+
+    TEXTURE2D(_DecalLayerPBR_MetallicMap);
+    TEXTURE2D(_DecalLayerPBR_NormalMap);
+}
+
+%Fragment("_DecalLayerPBRFrag")
+{
+    void _DecalLayerPBRFrag(MeshData d, inout SurfaceData o)
+    {
+        #if !defined(_DECALLAYERPBR_ENABLE)
+            return;
+        #else
+        half masks = 0;
+
+        // we can grab the mask map from the Base Shader if it is present
+        #if defined(_MASKMAP_SAMPLED)
+        masks = GLOBAL_maskMap.b;
+        #else
+        masks = 1;
+        #endif
+
+        half mask = lerp(masks, 1, _DecalLayerPBR_IgnoreMask);
+
+        // uv selection
+        float2 uv = d.uv0.xy;
+        switch(_DecalLayerPBR_UVChannel)
+        {
+            case 1: uv = d.uv1.xy; break;
+            case 2: uv = d.uv2.xy; break;
+            case 3: uv = d.uv3.xy; break;
+            default: uv = d.uv0.xy; break;
+        }
+
+        uv = uv * _DecalLayerPBR_AlbedoMap_ST.xy + _DecalLayerPBR_AlbedoMap_ST.zw;
+
+        // mix in the albedo
+        half4 albedo = SAMPLE_TEXTURE2D(_DecalLayerPBR_AlbedoMap, sampler_DecalLayerPBR_AlbedoMap, uv);
+        
+        // apply albedo to mask
+        mask *= _DecalLayerPBR_Alpha;
+        mask *= albedo.a;
+
+        o.Albedo = lerp(o.Albedo, albedo, mask);
+
+        // mix in the metallic & smoothness
+        half4 metallicPacked = SAMPLE_TEXTURE2D(_DecalLayerPBR_MetallicMap, sampler_DecalLayerPBR_AlbedoMap, uv);
+
+        half metal = metallicPacked[_MetalChannel];
+        o.Metallic = lerp(o.Metallic, metal, mask);
+        
+        half smooth = metallicPacked[_SmoothChannel];
+        o.Smoothness = lerp(o.Smoothness, smooth, mask);
+
+        // mix in the normals
+        half4 packedNormal = SAMPLE_TEXTURE2D(_DecalLayerPBR_NormalMap, sampler_DecalLayerPBR_AlbedoMap, uv);
+        half3 normal = UnpackNormalScale(packedNormal, _DecalLayerPBR_NormalScale);
+        o.Normal = lerp(o.Normal, BlendNormals(o.Normal, normal), mask);
+
+        #endif
+    }
+}
