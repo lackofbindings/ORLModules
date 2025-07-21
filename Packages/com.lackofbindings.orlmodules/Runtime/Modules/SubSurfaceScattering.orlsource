@@ -1,0 +1,233 @@
+// Original emission code by orels1, modified for use as 2nd emission.
+// (https://github.com/orels1/orels-Unity-Shaders/blob/main/Packages/sh.orels.shaders/Runtime/Shaders/ORL%20Standard.orlshader)
+
+%Properties()
+{
+    UI_SSSHeader("# Sub-Surface Scattering", Int) = 1
+    [Toggle(_SSS_ENABLED)] _SSSEnabled("Enable SSS", Int) =  0
+    // _SSSMap("Emission Map > %ShowIf(_EMISSION)", 2D) =  "white" { }
+    // [HDR]_SSSColor("Tint Color %ShowIf(_EMISSION)", Color) =  (0, 0, 0, 1)
+    [Enum(RGB, 0, R, 1, G, 2, B, 3, A, 4)][_SSSMap] _SSSChannel("Channel %ShowIf(_SSSMap)", Int) =  0
+    [Enum(UV1, 0, UV2, 1, UV3, 2, UV4, 3)]_SSSUVChannel("UV Set %ShowIf(_SSSMap)", Int) = 0
+
+    _SSSThicknessMap("Thickness Map", 2D) = "black" {}
+    [ToggleUI]_SSSThicknessMapInvert("Invert Thickness", Float) = 0.0
+    _SSSThicknessMapPower ("Thickness Map Power", Range(0.01, 10)) = 1
+    _SSSCol ("Scattering Color", Color) = (1,1,1,1)
+    _SSSIntensity ("Scattering Intensity", Range(0, 10)) = 1
+    _SSSPow ("Scattering Power", Range(0.01, 10)) = 1
+    _SSSDist ("Scattering Distance", Range(0, 10)) = 1
+    _SSSAmbient ("Scattering Ambient", Range(0, 1)) = 0
+}
+
+%ShaderFeatures()
+{
+    #pragma shader_feature_local _SSS_ENABLED
+}
+
+%ShaderDefines()
+{
+    #ifndef USING_DIRECTIONAL_LIGHT
+        #if defined (DIRECTIONAL_COOKIE) || defined (DIRECTIONAL)
+            #define USING_DIRECTIONAL_LIGHT
+        #endif
+    #endif
+
+    #define sRGB_Luminance float3(0.2126, 0.7152, 0.0722)
+}
+
+%Variables()
+{
+    half4 _SSSThicknessMap_ST;
+    float _SSSThicknessMapPower;
+    float _SSSThicknessMapInvert;
+
+    half3 _SSSCol;
+    float _SSSIntensity;
+    float _SSSPow;
+    float _SSSDist;
+    float _SSSAmbient;
+
+    int _SSSChannel;
+    int _SSSUVChannel;
+
+    struct SCSS_Light {
+        half3 color;
+        half3 dir;
+        half  intensity; 
+    };
+
+    struct SCSS_ShadingParam
+    {
+        float3  position;         // world-space position
+        float3x3 tangentToWorld;  // TBN matrix
+        float3  normal;           // normalized transformed normal, in world space
+        float3  view;             // normalized vector from the fragment to the eye
+    };
+
+    struct SCSS_LightParam
+    {
+        half3 viewDir, halfDir, reflDir;
+        half2 rlPow4;
+        half NdotL, NdotV, LdotH, NdotH;
+        half NdotAmb;
+    };
+
+    float4 _LightSkew = float4(1, 0.1, 1, 0);
+}
+
+%Textures()
+{
+    TEXTURE2D(_SSSThicknessMap);
+    SAMPLER(sampler_SSSThicknessMap);
+}
+
+%Fragment("SSSFrag")
+{
+
+    SCSS_Light MainLight(float3 worldPos)
+    {
+        SCSS_Light l;
+
+        l.color = _LightColor0.rgb;
+        l.dir = Unity_SafeNormalize(UnityWorldSpaceLightDir(worldPos)); 
+
+        return l;
+    }
+
+    float3 SimpleSH9(float3 normal)
+    {
+        return ShadeSH9(float4(normal, 1));
+    }
+
+    float3 GetSHDirectionL1()
+    {
+        // For efficiency, we only get the direction from L1.
+        // Because getting it from L2 would be too hard!
+        return
+            Unity_SafeNormalize((unity_SHAr.xyz + unity_SHAg.xyz + unity_SHAb.xyz));
+    }
+
+    float3 SHEvalLinearL2(float3 n)
+    {
+        return SHEvalLinearL2(float4(n, 1.0));
+    }
+
+    // Returns the value from SH in the lighting direction with the 
+    // brightest intensity. 
+    half3 GetSHMaxL1()
+    {
+        float4 maxDirection = float4(GetSHDirectionL1(), 1.0);
+        return SHEvalLinearL0L1(maxDirection) + max(SHEvalLinearL2(maxDirection), 0);
+    }
+
+    float getGreyscaleSH(float3 normal)
+    {
+        // Samples the SH in the weakest and strongest direction and uses the difference
+        // to compress the SH result into 0-1 range.
+
+        // However, for efficiency, we only get the direction from L1.
+        float3 ambientLightDirection = 
+            Unity_SafeNormalize((unity_SHAr.xyz + unity_SHAg.xyz + unity_SHAb.xyz));
+
+        // If this causes issues, it might be worth getting the min() of those two.
+        //float3 dd = float3(unity_SHAr.w, unity_SHAg.w, unity_SHAb.w);
+        float3 dd = SimpleSH9(-ambientLightDirection);
+        float3 ee = SimpleSH9(normal);
+        float3 aa = SimpleSH9(ambientLightDirection);
+
+        ee = saturate( (ee - dd) / (aa - dd));
+        return abs(dot(ee, sRGB_Luminance));
+
+        return dot(normal, ambientLightDirection);
+    }
+
+    float getAmbientLight (float3 normal, float3 viewDir)
+    {
+        float3 ambientLightDirection = Unity_SafeNormalize((unity_SHAr.xyz + unity_SHAg.xyz + unity_SHAb.xyz) * _LightSkew.xyz);
+
+        float ambientLight = dot(normal, ambientLightDirection);
+        ambientLight = ambientLight * 0.5 + 0.5;
+
+        // Dynamic
+        ambientLight = getGreyscaleSH(normal);
+        return ambientLight;
+    }
+
+    SCSS_LightParam initialiseLightParam (SCSS_Light l, SCSS_ShadingParam s)
+    {
+        SCSS_LightParam d = (SCSS_LightParam) 0;
+        d.halfDir = Unity_SafeNormalize (l.dir + s.view);
+        d.reflDir = reflect(-s.view, s.normal); // Calculate reflection vector
+        d.NdotL = (dot(l.dir, s.normal)); // Calculate NdotL
+        d.NdotV = (dot(s.view,  s.normal)); // Calculate NdotV
+        d.LdotH = (dot(l.dir, d.halfDir));
+        d.NdotH = (dot(s.normal, d.halfDir)); // Saturate seems to cause artifacts
+        d.NdotAmb = getAmbientLight(s.normal, s.view);
+        return d;
+    }
+
+    #if defined(_SSS_ENABLED)
+    //SSS method from GDC 2011 conference by Colin Barre-Bresebois & Marc Bouchard and modified by Xiexe and modified by S-ilent
+    float3 getSubsurfaceScatteringLight (SCSS_Light l, float3 normalDirection, float3 viewDirection, 
+        float attenuation, float3 thickness, float3 indirectLight = 0)
+    {
+        float3 vSSLight = l.dir + normalDirection * _SSSDist; // Distortion
+        float3 vdotSS = pow(saturate(dot(viewDirection, -vSSLight)), _SSSPow) 
+            * _SSSIntensity; 
+        
+        return lerp(1, attenuation, float(any(_WorldSpaceLightPos0.xyz))) 
+                    * (vdotSS + _SSSAmbient) * abs(_SSSThicknessMapInvert - thickness)
+                    * (l.color + indirectLight) * _SSSCol;
+                    
+    }
+    #endif
+
+    void SSSFrag(MeshData d, inout SurfaceData o) {
+        // UV channel selection
+        half2 uv;
+        switch(_SSSUVChannel)
+        {
+            case 1: uv = d.uv1.xy; break;
+            case 2: uv = d.uv2.xy; break;
+            case 3: uv = d.uv3.xy; break;
+            default: uv = d.uv0.xy; break;
+        }
+        uv *= _SSSThicknessMap_ST.xy + _SSSThicknessMap_ST.zw;
+        
+        // RGB channel selection
+        half4 thicknessCol = SAMPLE_TEXTURE2D(_SSSThicknessMap, sampler_SSSThicknessMap, uv).rgba;
+        half thickness;
+        if (_SSSChannel > 0)
+        {
+            thickness = thicknessCol[_SSSChannel - 1].xxxx;
+        }
+
+        // // Add emission to base emission
+        // o.Emission += SSS * _SSSColor;
+
+        // const SCSS_Input c, const SCSS_ShadingParam p
+
+        SCSS_ShadingParam p;
+        p.position = d.worldSpacePosition;
+        p.normal = d.worldNormal;
+        p.view = d.tangentSpaceViewDir;
+        p.tangentToWorld = d.TBNMatrix;
+
+        SCSS_Light l = MainLight(p.position.xyz);
+        SCSS_LightParam lp = initialiseLightParam(l, p);
+
+        SCSS_Light iL = l;
+        SCSS_LightParam iD = lp;
+        iL.color = GetSHMaxL1();
+        iL.dir = Unity_SafeNormalize((unity_SHAr.xyz + unity_SHAg.xyz + unity_SHAb.xyz) * _LightSkew.xyz);
+        iD = initialiseLightParam(iL, p);
+
+        #if defined(_SSS_ENABLED)
+			#if defined(USING_DIRECTIONAL_LIGHT)
+                // o.Emission += getSubsurfaceScatteringLight(l, p.normal, p.view, p.attenuation, thickness) * c.albedo;
+			#endif
+		    o.Emission += getSubsurfaceScatteringLight(iL, p.normal, p.view, 1, thickness) * o.Albedo;
+		#endif
+    }
+}
