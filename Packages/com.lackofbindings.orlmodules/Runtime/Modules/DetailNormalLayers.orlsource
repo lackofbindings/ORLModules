@@ -4,9 +4,9 @@
 
     [KeywordEnum(Disabled, One, Two, Three, Four)] _DetailNormalLayers ("Number of Layers", Int) = 0
 
-    [ToggleUI]_DIgnoreMask("Ignore Main Mask %ShowIf(DETAILS_OVERLAY)", Int) = 0
+    [ToggleUI]_DLIgnoreMask("Ignore Main Mask %ShowIf(DETAILS_OVERLAY)", Int) = 0
     [NoScaleOffset]_DetailNormalMask("Detail Mask > %ShowIf(_DetailNormalLayers > 0)", 2D) = "white" { }
-    [Enum(UV1, 0, UV2, 1, UV3, 2, UV4, 3)]_DetailNormalUVChannel("UV Set %ShowIf(_DetailNormalLayers > 0)", Int) = 0
+    [Enum(UV1, 0, UV2, 1, UV3, 2, UV4, 3)]_DLUVChannel("UV Set %ShowIf(_DetailNormalLayers > 0)", Int) = 0
     UI_DetailsMaskNote("> RGBA: Mask Layers 1-4. Uncheck sRGB! %ShowIf(_DetailNormalLayers > 0)", Int) = 0
 
     [Normal]_DetailNormalL1Map("Normal Map Layer 1 %ShowIf(_DetailNormalLayers > 0)", 2D) = "bump" { }
@@ -49,10 +49,10 @@
 
 %Variables()
 {
-    int _DIgnoreMask;
+    float _DLIgnoreMask;
 
     // half4 _DetailNormalMask_ST;
-    int _DetailNormalUVChannel;
+    int _DLUVChannel;
 
     half4 _DetailNormalL1Map_ST;
     half4 _DetailNormalL2Map_ST;
@@ -93,11 +93,11 @@
         masks = 1;
         #endif
 
-        half mask = lerp(masks, 1, _DIgnoreMask);
+        half mask = lerp(masks, 1, _DLIgnoreMask);
 
         // uv selection
         float2 uv = d.uv0.xy;
-        switch(_DUVChannel)
+        switch(_DLUVChannel)
         {
             case 1: uv = d.uv1.xy; break;
             case 2: uv = d.uv2.xy; break;
