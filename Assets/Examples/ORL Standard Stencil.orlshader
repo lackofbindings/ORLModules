@@ -1,4 +1,4 @@
-%ShaderName("orels1/Standard Stencil")
+%ShaderName("orels1/lackofbindings/Standard Stencil")
 %CustomEditor("ORL.ShaderInspector.InspectorGUI")
 
 %Includes()
