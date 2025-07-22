@@ -1,0 +1,10 @@
+%ShaderName("orels1/Standard UV Tile Discard")
+%CustomEditor("ORL.ShaderInspector.InspectorGUI")
+
+%Includes()
+{
+    "@/Shaders/ORL Standard",
+    "/Packages/com.lackofbindings.orlmodules/Runtime/Modules/UVTileDiscard",
+    "self"
+}
+

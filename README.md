@@ -6,7 +6,7 @@ This VPM provides custom modules for the [ORL shader suite](https://shaders.orel
 
 ### Stencil Options
 
-> ⚠️ Deprecated with ORL 6.4.0+, stencil options are now included by default.
+> ⚠️ The Stencil Options module is deprecated with ORL 7.0.0+, stencil options are now included by default.
 
 This Module provides the standard stencil masking options (stencil mask value, pass/fail/comparison, etc.)
 
@@ -95,20 +95,16 @@ If the "Add to VCC" button does not work you can manually enter the following ur
 If you do not have access to the VCC, there are also unitypackage versions available in the [Releases](https://github.com/lackofbindings/ORLModules/releases/latest).
 
 ## Usage
- 
-#### As a shader
 
-Ready-to-use variants of ORL Standard can be found when making a new material:
-- `orels1/Standard Stencil`
-- `orels1/Standard Audiolink Pathing`
-- `orels1/Standard 2nd Emission`
-- ...etc.
+The easiest way to use a module is to create a new Configurable Shader and include any combination of modules that you want:
 
-See the [Shaders Directory](Packages/com.lackofbindings.orlmodules/Runtime/Shaders/) for all pre-made shaders.
+1. Create > Shader > orels1 > **Configurable Shader**.
+2. Change the **Base Shader** to `ORL Standard` *(or whatever you want, many modules may rely on PBR lighting model and/or ORL Standard though)*.
+3. In the **Modules** list, check the Custom Module checkbox and select any module you want. You can include as many as you need for whatever features you want.
+4. Give your shader a unique name in the **Shader Name** box.
+5. Hit apply and you can start using your new custom shader.
 
-#### As a module
-
-The modules can also be included in any `.orlshader` or `.orlsource` by listing the module in your Includes block:
+If you prefer working with code, the modules can also be included in any `.orlshader` or `.orlsource` by listing the module in your Includes block:
 ```
 %Includes()
 {
