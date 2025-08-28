@@ -13,18 +13,18 @@
       "dependencies": {}
     },
     "sh.orels.shaders": {
-      "version": "7.0.0-dev.23",
+      "version": "7.0.0-dev.24",
       "dependencies": {
-        "sh.orels.shaders.generator": "^7.0.0-dev.23",
-        "sh.orels.shaders.inspector": "^7.0.0-dev.23"
+        "sh.orels.shaders.generator": "^7.0.0-dev.24",
+        "sh.orels.shaders.inspector": "^7.0.0-dev.24"
       }
     },
     "sh.orels.shaders.generator": {
-      "version": "7.0.0-dev.23",
+      "version": "7.0.0-dev.24",
       "dependencies": {}
     },
     "sh.orels.shaders.inspector": {
-      "version": "7.0.0-dev.23",
+      "version": "7.0.0-dev.24",
       "dependencies": {}
     }
   }
