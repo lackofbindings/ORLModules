@@ -74,6 +74,10 @@ This module adds an extra set of PBR properties (Albedo, Metallic, Smoothness, N
 
 This module enables dithered cutout cross-fading support for use with [LOD groups](https://docs.unity3d.com/2022.3/Documentation/Manual/class-LODGroup.html). The LOD group must have its Fade Mode set to `Cross Fade` and Fade Transition Width must be greater than 0. Uses the built-in UnityApplyDitherCrossFade() based on [the example created by keijiro](https://github.com/keijiro/CrossFadingLod/).
 
+### Std Fallback Properties
+
+This module does nothing but expose some of the default Unity Standard shader properties that are not in ORL. These have no effect and are only for the sake of providing those properties to fallback shaders that expect those property names.
+
 ## How to Install
 
 ### Dependencies

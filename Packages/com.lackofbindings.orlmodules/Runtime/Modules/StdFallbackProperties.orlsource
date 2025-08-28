@@ -1,0 +1,12 @@
+%Properties()
+{
+    UI_StdFallbackHeader("# VRChat Fallback Properties", Int) = 0
+    _MetallicGlossMap("Metallic Map > %ShowIf(_MetallicGlossMap || _VRCFallbackTag == 0)", 2D) = "white" { }
+    // _Metallic("Metallic %ShowIf(!_MetallicGlossMap && _VRCFallbackTag == 0)", Range(0, 1)) = 0
+    _Glossiness("Smoothness %ShowIf(!_MetallicGlossMap && _VRCFallbackTag == 0)", Range(0, 1)) = 0.5
+    _GlossMapScale("Smoothness Mult %ShowIf(_MetallicGlossMap && _VRCFallbackTag == 0)", Range(0, 1)) = 1
+    _OcclusionMap("Occlusion Map > %ShowIf(_OcclusionMap || _VRCFallbackTag == 0)", 2D) = "white" { }
+    // _OcclusionStrength("Smoothness Mult %ShowIf(_OcclusionMap)", Range(0, 1)) = 1
+    // _EmissionMap("Emission Map > %ShowIf(_EmissionMap || _VRCFallbackTag == 0)", 2D) = "white" { }
+    // [HDR]_EmissionColor("Emission Color", Color) = (0, 0, 0, 1)
+}
