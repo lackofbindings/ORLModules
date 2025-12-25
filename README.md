@@ -46,6 +46,8 @@ It is intended to maintain compatibility with the following similar features:
 
 Also note that a more simple module that serves the same purpose is already included with the ORL Shader Suite under `@/Modules/Toon/UVDiscard`. The focus of this module is compatibility with existing avatar meshes.
 
+This module is also available in a variant that uses the Poiyomi property naming conventions, for use as a drop-in for animations created against a Poiyomi material.
+
 ### RGBA Color Mask
 
 This module allows you to supply a mask texture and 4 colors, where each channel of the mask defines the region where the color will be mixed with the base color. Each color is applied in-order of the channels of the mask. The alpha of each color swatch can be used to control intensity.
