@@ -9,22 +9,22 @@
   },
   "locked": {
     "com.vrchat.core.vpm-resolver": {
-      "version": "0.1.26",
+      "version": "0.1.29",
       "dependencies": {}
     },
     "sh.orels.shaders": {
-      "version": "6.3.0",
+      "version": "7.0.0",
       "dependencies": {
-        "sh.orels.shaders.generator": "^6.3.0",
-        "sh.orels.shaders.inspector": "^6.3.0"
+        "sh.orels.shaders.generator": "^7.0.0",
+        "sh.orels.shaders.inspector": "^7.0.0"
       }
     },
     "sh.orels.shaders.generator": {
-      "version": "6.3.0",
+      "version": "7.0.0",
       "dependencies": {}
     },
     "sh.orels.shaders.inspector": {
-      "version": "6.3.0",
+      "version": "7.0.0",
       "dependencies": {}
     }
   }
