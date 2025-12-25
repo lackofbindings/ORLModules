@@ -1,0 +1,11 @@
+%ShaderName("orels1/lackofbindings/Standard AudioLink Pathing + 2nd Emission")
+%CustomEditor("ORL.ShaderInspector.InspectorGUI")
+
+%Includes()
+{
+    "@/Shaders/ORL Standard",
+    "/Packages/com.lackofbindings.orlmodules/Runtime/Modules/AudiolinkPathing",
+    "/Packages/com.lackofbindings.orlmodules/Runtime/Modules/2ndEmission",
+    "self"
+}
+

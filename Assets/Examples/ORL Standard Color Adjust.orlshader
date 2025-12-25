@@ -1,0 +1,9 @@
+%ShaderName("orels1/lackofbindings/Standard Color Adjust")
+%CustomEditor("ORL.ShaderInspector.InspectorGUI")
+
+%Includes()
+{
+    "@/Shaders/ORL Standard",
+    "/Packages/com.lackofbindings.orlmodules/Runtime/Modules/ColorAdjust",
+    "self"
+}

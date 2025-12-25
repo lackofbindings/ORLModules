@@ -1,0 +1,9 @@
+%ShaderName("orels1/lackofbindings/Standard RGBA Color Mask")
+%CustomEditor("ORL.ShaderInspector.InspectorGUI")
+
+%Includes()
+{
+    "@/Shaders/ORL Standard",
+    "/Packages/com.lackofbindings.orlmodules/Runtime/Modules/RGBAColorMask",
+    "self"
+}
